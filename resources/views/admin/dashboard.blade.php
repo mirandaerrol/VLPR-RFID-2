@@ -8,10 +8,7 @@
         <h1><i class="fas fa-tachometer-alt"></i> Dashboard Overview</h1>
         <p style="color: #64748b;">Welcome back, Admin. Real-time monitoring active.</p>
     </div>
-
-    <!-- 1. STATS ROW -->
     <div class="stats-grid">
-        <!-- Vehicles -->
         <div class="stat-card">
             <div class="stat-info">
                 <h4>Registered Vehicles</h4>
@@ -21,8 +18,6 @@
                 <i class="fas fa-car"></i>
             </div>
         </div>
-
-        <!-- Detections -->
         <div class="stat-card">
             <div class="stat-info">
                 <h4>Total Detections</h4>
@@ -32,8 +27,6 @@
                 <i class="fas fa-camera"></i>
             </div>
         </div>
-
-        <!-- RFIDs -->
         <div class="stat-card">
             <div class="stat-info">
                 <h4>RFID Scans</h4>
@@ -44,12 +37,8 @@
             </div>
         </div>
     </div>
-
-    <!-- 2. LIVE MONITOR SECTION (NEW) -->
     <h3 style="margin-bottom: 1rem; color: #333;">Live Monitoring</h3>
     <div class="admin-monitor-grid">
-        
-        <!-- Video Feed -->
         <div class="card video-card">
             <div class="card-header">
                 <h3><i class="fas fa-video" style="color: #ef4444;"></i> Live Camera Feed</h3>
@@ -58,14 +47,11 @@
                 </span>
             </div>
             <div class="live-stream-container">
-                <!-- Connects to your Python Flask App -->
                 <img src="http://127.0.0.1:5000/video_feed" 
                      onerror="this.onerror=null; this.src='https://via.placeholder.com/800x450?text=Camera+Offline'; this.style.opacity='0.5';"
                      alt="Live Stream">
             </div>
         </div>
-
-        <!-- Real-Time Detection Info -->
         <div class="card info-card">
             <div class="card-header">
                 <h3><i class="fas fa-bell" style="color: #f59e0b;"></i> Latest Activity</h3>
@@ -81,8 +67,6 @@
         </div>
 
     </div>
-
-    <!-- 3. QUICK ACTIONS -->
     <h3 style="margin-bottom: 1rem; color: #333;">Quick Actions</h3>
     <div class="card">
         <div class="section-header">
@@ -114,8 +98,7 @@
     </div>
 
 </div>
-
-<!-- REAL-TIME JAVASCRIPT -->
+>
 <script>
     const liveUrl = "{{ route('vehicle_detect_live') }}";
 
@@ -124,8 +107,6 @@
             const response = await fetch(liveUrl);
             if (!response.ok) return;
             const data = await response.json();
-            
-            // Only update if there is data
             if (data.plate) {
                 updateDetectionPanel(data);
             }
@@ -159,8 +140,6 @@
         `;
         document.getElementById("last-updated").innerText = "Updated: " + new Date().toLocaleTimeString();
     }
-
-    // Poll every 2 seconds
     setInterval(fetchLatestDetection, 2000);
     fetchLatestDetection();
 </script>

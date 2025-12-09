@@ -4,15 +4,12 @@
 @section('content')
 <div class="dashboard-container">
     <div class="card">
-        <!-- HEADER -->
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
             <h1>Vehicle Owners</h1>
             <button type="button" class="submit" data-bs-toggle="modal" data-bs-target="#createOwnerModal">
                 Register New Owner
             </button>
         </div>
-
-        <!-- SUCCESS MESSAGE -->
         @if(session('success'))
             <div id="success-popup" style="background:#d4edda; color:#155724; padding:1rem; margin-bottom:1rem; border-radius:5px; border: 1px solid #c3e6cb;">
                 <i class="fas fa-check-circle"></i> {{ session('success') }}
@@ -24,11 +21,10 @@
                 }, 3000);
             </script>
         @endif
-
-        <!-- TABLE -->
         <table class="vehicle-owner-table">
             <thead>
                 <tr>
+                    <th>#</th>
                     <th>Name</th>
                     <th>Address</th>
                     <th>Contact Number</th>
@@ -40,11 +36,12 @@
             <tbody>
                 @foreach($vehicleOwners as $owner)
                     <tr>
+                        <td>{{ $loop->iteration }}</td>
                         <td>{{ $owner->f_name }} {{ $owner->l_name }}</td>
                         <td>{{ $owner->address }}</td>
                         <td>{{ $owner->contact_number }}</td>
                         <td>{{ $owner->type_of_owner }}</td>
-                        <!-- DISPLAY RFID CODE DIRECTLY -->
+
                         <td>
                             @if($owner->rfid_code)
                                 <span style="background:#e8f5e9; color:#27ae60; padding:2px 6px; border-radius:4px; font-weight:bold; font-size:0.85rem;">
@@ -55,7 +52,6 @@
                             @endif
                         </td>
                         <td>
-                            <!-- VIEW BUTTON -->
                             <button type="button" class="submit"
                                     style="background-color: #3498db;"
                                     data-fname="{{ $owner->f_name }}"
@@ -69,8 +65,6 @@
                                     onclick="openShowOwnerModal(this)">
                                     <i class="fas fa-eye"></i>
                             </button>
-
-                            <!-- EDIT BUTTON -->
                             <button type="button" class="submit" 
                                     style="background-color: #58bc82;"
                                     data-id="{{ $owner->owner_id }}"
@@ -85,8 +79,6 @@
                                     onclick="openEditOwnerModal(this)">
                                     <i class="fas fa-edit"></i>
                             </button>
-
-                            <!-- DELETE FORM -->
                             <form id="delete-form-{{ $owner->owner_id }}" 
                                   action="{{ route('admin.vehicle_owners.destroy', $owner->owner_id) }}" 
                                   method="POST" style="display:inline;">
@@ -104,8 +96,6 @@
         </table>
     </div>
 </div>
-
-<!-- MODALS INCLUDES -->
 <div class="modal fade" id="createOwnerModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -166,7 +156,6 @@
     </div>
 </div>
 
-<!-- SCRIPTS -->
 <style>
     .input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem; }
     .label { font-weight: bold; margin-bottom: 5px; display: block; color: #555; }
@@ -174,7 +163,6 @@
 </style>
 
 <script>
-    // --- EDIT MODAL LOGIC ---
     function openEditOwnerModal(button) {
         var id = button.getAttribute('data-id');
         var fname = button.getAttribute('data-fname');
@@ -200,14 +188,12 @@
         var typeSelect = document.getElementById('edit_type_of_owner');
         if(typeSelect) typeSelect.value = type;
 
-        // POPULATE RFID TEXT INPUT
         document.getElementById('edit_rfid_code').value = rfidCode || "";
 
         var myModal = new bootstrap.Modal(document.getElementById('editOwnerModal'));
         myModal.show();
     }
 
-    // --- SHOW MODAL LOGIC ---
     function openShowOwnerModal(button) {
         document.getElementById('show_name').innerText = button.getAttribute('data-fname') + ' ' + button.getAttribute('data-lname');
         document.getElementById('show_address').innerText = button.getAttribute('data-address');

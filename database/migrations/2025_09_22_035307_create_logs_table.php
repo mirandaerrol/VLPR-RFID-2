@@ -15,8 +15,11 @@ return new class extends Migration
             $table->id('logs_id'); 
             $table->unsignedBigInteger('vehicle_id')->nullable();
             $table->unsignedBigInteger('owner_id')->nullable();
-            // CHANGED: Stores the raw RFID code string instead of an ID
             $table->string('rfid_code')->nullable(); 
+            $table->string('detection_method')->nullable();
+            $table->string('detected_plate_number')->nullable();
+            $table->string('vehicle_type')->nullable();
+
             $table->timestamps();
 
             $table->foreign('vehicle_id')->references('vehicle_id')->on('vehicles')->onDelete('cascade');

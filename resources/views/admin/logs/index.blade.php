@@ -6,7 +6,6 @@
     <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h1 style="margin:0;">Vehicle Logs</h1>
         
-        <!-- Search Button Triggers Modal -->
         <button type="button" class="submit" data-bs-toggle="modal" data-bs-target="#searchModal">
             <i class="fas fa-search"></i> Search Logs
         </button>
@@ -34,6 +33,7 @@
         <table class="table">
             <thead>
                 <tr>
+                    <th>#</th>
                     <th>Plate Number</th>
                     <th>Owner Name</th>
                     <th>Total Logs</th>
@@ -50,6 +50,7 @@
                     @endphp
                     
                     <tr class="log-group-header">
+                        <td>{{ $loop->iteration }}</td>
                         <td><strong>{{ $plateNumber }}</strong></td>
                         <td>{{ $ownerName }}</td>
                         <td>{{ $logs->count() }}</td>
@@ -60,12 +61,14 @@
                                 View Details
                             </button>
 
-                            <!-- HIDDEN CONTENT MOVED INSIDE THE TD -->
+                            <!-- HIDDEN CONTENT -->
                             <div id="content-{{ $uniqueId }}" style="display: none;">
                                 <table class="table table-bordered table-striped" style="width: 100%;">
                                     <thead class="table-light">
                                         <tr>
-                                            <th>LOG ID</th>
+                                            <th>#</th>
+                                            <th>METHOD</th> 
+                                            <th>TYPE</th> 
                                             <th>DATE</th>
                                             <th>TIME IN</th>
                                             <th>TIME OUT</th>
@@ -75,7 +78,17 @@
                                     <tbody>
                                         @foreach ($logs as $log)
                                             <tr>
-                                                <td>{{ $log->logs_id }}</td>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td>
+                                                    @if($log->detection_method == 'RFID')
+                                                        <span style="background:#e8f5e9; color:#2e7d32; padding:2px 6px; border-radius:4px; font-weight:bold; font-size:0.8rem;">RFID</span>
+                                                    @elseif($log->detection_method == 'PLATE' || $log->detection_method == 'CAMERA')
+                                                        <span style="background:#e3f2fd; color:#1565c0; padding:2px 6px; border-radius:4px; font-weight:bold; font-size:0.8rem;">PLATE</span>
+                                                    @else
+                                                        <span style="color:#666;">--</span>
+                                                    @endif
+                                                </td>
+                                                <td>{{ $log->vehicle_type ?? ($log->vehicle->vehicle_type ?? 'N/A') }}</td>
                                                 <td>{{ $log->created_at->format('d/m/Y') }}</td>
                                                 <td style="color: #27ae60; font-weight: bold;">
                                                     {{ $log->timeLog->time_in ? \Carbon\Carbon::parse($log->timeLog->time_in)->format('H:i:s') : '--' }}
@@ -120,6 +133,7 @@
         <table class="table">
             <thead>
                 <tr>
+                    <th>#</th>
                     <th>Detected Plate</th>
                     <th>Status</th>
                     <th>Total Logs</th>
@@ -135,6 +149,7 @@
                     @endphp
                     
                     <tr class="log-group-header">
+                        <td>{{ $loop->iteration }}</td>
                         <td><strong style="color: #c0392b;">{{ $plateNumber }}</strong></td>
                         <td><span style="background:#fadbd8; color:#c0392b; padding:2px 8px; border-radius:4px;">Unregistered</span></td>
                         <td>{{ $logs->count() }}</td>
@@ -145,13 +160,12 @@
                                 View Details
                             </button>
 
-                            <!-- REGISTER BUTTON -->
                             <button type="button" class="submit" style="background-color: #f39c12;"
                                     onclick="openRegisterModal('{{ $plateNumber }}')">
                                 Register
                             </button>
 
-                            <!-- HIDDEN CONTENT MOVED INSIDE THE TD -->
+                            <!-- HIDDEN CONTENT -->
                             <div id="content-{{ $uniqueId }}" style="display: none;">
                                  <div class="mb-3 text-end">
                                     <button type="button" class="btn btn-warning btn-sm" onclick="openRegisterModal('{{ $plateNumber }}')">
@@ -161,7 +175,9 @@
                                 <table class="table table-bordered table-striped" style="width: 100%;">
                                     <thead class="table-light">
                                         <tr>
-                                            <th>LOG ID</th>
+                                            <th>#</th>
+                                            <th>METHOD</th> 
+                                            <th>TYPE</th>
                                             <th>DATE</th>
                                             <th>TIME IN</th>
                                             <th>TIME OUT</th>
@@ -171,7 +187,15 @@
                                     <tbody>
                                         @foreach ($logs as $log)
                                             <tr>
-                                                <td>{{ $log->logs_id }}</td>
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td>
+                                                    @if($log->detection_method == 'RFID')
+                                                        <span style="background:#e8f5e9; color:#2e7d32; padding:2px 6px; border-radius:4px; font-weight:bold; font-size:0.8rem;">RFID</span>
+                                                    @else
+                                                        <span style="background:#e3f2fd; color:#1565c0; padding:2px 6px; border-radius:4px; font-weight:bold; font-size:0.8rem;">PLATE</span>
+                                                    @endif
+                                                </td>
+                                                <td>{{ $log->vehicle_type ?? 'N/A' }}</td>
                                                 <td>{{ $log->created_at->format('d/m/Y') }}</td>
                                                 <td style="font-weight: bold;">
                                                     {{ $log->timeLog->time_in ? \Carbon\Carbon::parse($log->timeLog->time_in)->format('H:i:s') : '--' }}
@@ -201,18 +225,11 @@
             </tbody>
         </table>
 
-        <!--Pagination-->
         <div style="margin-top: 15px; display: flex; justify-content: center;">
             {{ $unregisteredLogs->appends(['search' => $search, 'reg_page' => request('reg_page')])->links('pagination::simple-bootstrap-5') }}
         </div>
     </div>
 </div>
-
-<!-- ========================================== -->
-<!--            MODALS SECTION                  -->
-<!-- ========================================== -->
-
-<!-- 1. SEARCH MODAL -->
 <div class="modal fade" id="searchModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -234,8 +251,6 @@
         </div>
     </div>
 </div>
-
-<!-- 2. DETAILS MODAL -->
 <div class="modal fade" id="detailsModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -244,7 +259,6 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" id="detailsModalBody">
-                <!-- Content injected by JS -->
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -252,8 +266,6 @@
         </div>
     </div>
 </div>
-
-<!-- 3. REGISTER VEHICLE MODAL -->
 <div class="modal fade" id="vehicleModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -276,8 +288,17 @@
                             @endforeach
                         </select>
                     </div>
-
-                    <!-- REMOVED: RFID Selection Input (Caused the Error) -->
+                    <div class="mb-3">
+                        <label for="vehicle_type" class="form-label" style="font-weight: bold;">Vehicle Type:</label>
+                        <select name="vehicle_type" id="vehicle_type" class="form-control" required>
+                            <option value="">Select Type</option>
+                            <option value="Car">Car</option>
+                            <option value="Motorcycle">Motorcycle</option>
+                            <option value="SUV">SUV</option>
+                            <option value="Truck">Truck</option>
+                            <option value="Van">Van</option>
+                        </select>
+                    </div>
 
                     <div class="mb-3">
                         <label for="plate_number" class="form-label" style="font-weight: bold;">Plate Number:</label>
@@ -293,8 +314,6 @@
         </div>
     </div>
 </div>
-
-<!-- 4. DELETE MODAL -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="text-align: center;">
@@ -314,7 +333,6 @@
 </div>
 
 <script>
-    // --- 1. DETAILS MODAL LOGIC ---
     function openLogDetails(uniqueId, plateNumber) {
         var content = document.getElementById('content-' + uniqueId).innerHTML;
         document.getElementById('detailsModalBody').innerHTML = content;
@@ -322,8 +340,6 @@
         var myModal = new bootstrap.Modal(document.getElementById('detailsModal'));
         myModal.show();
     }
-
-    // --- 2. REGISTER MODAL LOGIC ---
     function openRegisterModal(plateNumber) {
         var plateInput = document.getElementById('plate_number');
         if(plateInput) {
@@ -332,8 +348,6 @@
         var myModal = new bootstrap.Modal(document.getElementById('vehicleModal'));
         myModal.show();
     }
-
-    // --- 3. DELETE MODAL LOGIC ---
     let currentDeleteFormId = null;
     function openDeleteModal(formId) {
         currentDeleteFormId = formId; 
@@ -345,5 +359,10 @@
             document.getElementById(currentDeleteFormId).submit();
         }
     }
+    setInterval(function(){
+        if (!document.querySelector('.modal.show')) {
+            window.location.reload();
+        }
+    }, 5000);
 </script>
 @endsection

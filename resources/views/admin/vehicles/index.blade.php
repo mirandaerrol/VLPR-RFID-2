@@ -4,15 +4,12 @@
 @section('content')
 <div class="dashboard-container">
     <div class="card">
-        <!-- HEADER -->
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
             <h1>Vehicle List</h1>
             <button type="button" class="submit" data-bs-toggle="modal" data-bs-target="#vehicleModal">
                  Register New Vehicle
             </button>
         </div>
-        
-        <!-- SUCCESS MESSAGE -->
         @if(session('success'))
             <div id="success-popup" style="background:#d4edda; color:#155724; padding:1rem; margin-bottom:1rem; border-radius:5px; border: 1px solid #c3e6cb;">
                 <i class="fas fa-check-circle"></i> {{ session('success') }}
@@ -24,15 +21,14 @@
                 }, 3000);
             </script>
         @endif
-
-        <!-- TABLE -->
         <table class="table">
             <thead>
                 <tr>
                     <th>#</th> 
                     <th>Owner Name</th>
-                    <th>RFID Code</th>
+                    <th>Vehicle Type</th>
                     <th>Plate Number</th>
+                    <th>RFID Code</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -41,8 +37,9 @@
                 <tr>
                     <td>{{ $loop->iteration }}</td>
                     <td>{{ $vehicle->owner->f_name }} {{ $vehicle->owner->l_name }}</td>
+                    <td>{{ $vehicle->vehicle_type ?? 'N/A' }}</td> 
+                    <td>{{ $vehicle->plate_number }}</td>
                     
-                    <!-- FIXED: Get RFID from the OWNER, not the vehicle -->
                     <td>
                         @if($vehicle->owner && $vehicle->owner->rfid_code)
                             <span style="background:#e8f5e9; color:#27ae60; padding:2px 6px; border-radius:4px; font-weight:bold; font-size:0.85rem;">
@@ -53,21 +50,16 @@
                         @endif
                     </td>
                     
-                    <td>{{ $vehicle->plate_number }}</td>
                     <td>
-                        <!-- EDIT BUTTON -->
-                        <!-- FIXED: Removed rfid-id and updated rfid-code to pull from owner -->
                         <button class="submit" 
                                 style="background-color: #58bc82;"
                                 data-id="{{ $vehicle->vehicle_id }}"
                                 data-owner="{{ $vehicle->owner_id }}"
-                                data-rfid-code="{{ $vehicle->owner->rfid_code ?? '' }}" 
+                                data-type="{{ $vehicle->vehicle_type }}" 
                                 data-plate="{{ $vehicle->plate_number }}"
                                 onclick="openEditVehicleModal(this)">
                                 <i class="fas fa-edit"></i>
                         </button>
-
-                        <!-- DELETE FORM -->
                         <form id="delete-form-{{ $vehicle->vehicle_id }}" 
                               action="{{ route('admin.vehicles.destroy', $vehicle->vehicle_id) }}" 
                               method="POST" style="display:inline;">
@@ -85,17 +77,13 @@
 
                 @if($vehicles->isEmpty())
                 <tr>
-                    <td colspan="5" style="text-align:center;">No vehicles found.</td>
+                    <td colspan="6" style="text-align:center;">No vehicles found.</td>
                 </tr>
                 @endif
             </tbody>
         </table>
     </div>
 </div>
-
-<!-- ========================================== -->
-<!--       BOOTSTRAP CREATE VEHICLE MODAL       -->
-<!-- ========================================== -->
 <div class="modal fade" id="vehicleModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -109,10 +97,6 @@
         </div>
     </div>
 </div>
-
-<!-- ========================================== -->
-<!--        BOOTSTRAP EDIT VEHICLE MODAL        -->
-<!-- ========================================== -->
 <div class="modal fade" id="editVehicleModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -126,10 +110,6 @@
         </div>
     </div>
 </div>
-
-<!-- ========================================== -->
-<!--       BOOTSTRAP DELETE CONFIRM MODAL       -->
-<!-- ========================================== -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="text-align: center;">
@@ -149,19 +129,15 @@
     </div>
 </div>
 
-<!-- ========================================== -->
-<!--            STYLES & SCRIPTS                -->
-<!-- ========================================== -->
 <style>
     .input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 1rem; }
 </style>
 
 <script>
-    // --- EDIT MODAL LOGIC ---
     function openEditVehicleModal(button) {
         var id = button.getAttribute('data-id');
         var owner = button.getAttribute('data-owner');
-        var rfidCode = button.getAttribute('data-rfid-code');
+        var type = button.getAttribute('data-type');
         var plate = button.getAttribute('data-plate');
 
         var form = document.getElementById('editVehicleForm');
@@ -170,20 +146,11 @@
 
         if(document.getElementById('edit_plate_number')) document.getElementById('edit_plate_number').value = plate;
         if(document.getElementById('edit_owner_id')) document.getElementById('edit_owner_id').value = owner;
-        
-        // FIXED: Since RFID is on the owner, we just display it (if a field exists)
-        // We do NOT need to run loop logic for a select box anymore.
-        var rfidDisplay = document.getElementById('edit_rfid_display');
-        if(rfidDisplay) {
-            rfidDisplay.value = rfidCode || "Owner has no RFID";
-        }
+        if(document.getElementById('edit_vehicle_type')) document.getElementById('edit_vehicle_type').value = type; // Set Type
 
-        // Open Bootstrap Modal via JS
         var myModal = new bootstrap.Modal(document.getElementById('editVehicleModal'));
         myModal.show();
     }
-
-    // --- DELETE MODAL LOGIC ---
     let currentDeleteFormId = null;
 
     function openDeleteModal(formId) {
@@ -197,8 +164,6 @@
             document.getElementById(currentDeleteFormId).submit();
         }
     }
-
-    // --- AUTO OPEN ON ERRORS / LOAD ---
     document.addEventListener('DOMContentLoaded', function() {
         @if ($errors->any())
             var myModal = new bootstrap.Modal(document.getElementById('vehicleModal'));

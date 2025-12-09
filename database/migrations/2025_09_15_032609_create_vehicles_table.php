@@ -15,8 +15,8 @@ return new class extends Migration
             $table->engine = 'InnoDB';
             $table->id('vehicle_id');
             $table->unsignedBigInteger('owner_id'); 
-            // REMOVED: rfid_id (RFID is now on the owner)
             $table->string('plate_number');
+            $table->string('vehicle_type')->nullable();
             $table->timestamps();
 
             $table->foreign('owner_id')->references('owner_id')->on('vehicle_owner')->onDelete('cascade');
@@ -29,5 +29,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('vehicles');
+        Schema::table('vehicles', function (Blueprint $table) {
+            $table->dropColumn('vehicle_type');
+        });
     }
 };

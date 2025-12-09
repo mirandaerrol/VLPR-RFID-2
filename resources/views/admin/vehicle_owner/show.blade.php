@@ -6,7 +6,6 @@
         <p><strong>School Year:</strong> <span id="show_school"></span></p>
         <p><strong>Type of Owner:</strong> <span id="show_type"></span></p>
         <p><strong>Valid ID:</strong> <span id="show_valid"></span></p>
-        <!-- ADDED: RFID Display -->
         <p><strong>RFID Tag:</strong> <span id="show_rfid" style="color:#27ae60; font-weight:bold;"></span></p>
     </div>
 

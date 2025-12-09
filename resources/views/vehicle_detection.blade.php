@@ -15,7 +15,7 @@
             .catch(err => console.error("Live fetch error:", err));
     }
 
-    // refresh every 2 seconds
+    
     setInterval(fetchPlates, 2000);
 </script>
 

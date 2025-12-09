@@ -47,8 +47,6 @@
         <label for="valid_id" class="label">Valid ID:</label>
         <input type="text" name="valid_id" id="valid_id" class="input" required value="{{ old('valid_id') }}">
     </div>
-
-    <!-- FIXED: CHANGED FROM SELECT TO TEXT INPUT -->
     <div class="input-span">
         <label for="rfid_code" class="label" style="color: #27ae60;">RFID Tag (Optional):</label>
         <input type="text" name="rfid_code" id="rfid_code" class="input" placeholder="Scan or type RFID code..." value="{{ old('rfid_code') }}">

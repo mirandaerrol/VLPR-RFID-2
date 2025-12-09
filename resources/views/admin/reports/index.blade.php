@@ -10,7 +10,7 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>Report ID</th>
+                    <th>#</th>
                     <th>Reported Plate</th>
                     <th>Reported By (Guard)</th>
                     <th>Date & Time</th>
@@ -19,7 +19,7 @@
             <tbody>
                 @forelse($reports as $report)
                     <tr>
-                        <td>{{ $report->report_id }}</td>
+                        <td>{{ $loop->iteration }}</td>
                         <td>
                             <strong class="reports">
                                 {{ $report->plate_number }}

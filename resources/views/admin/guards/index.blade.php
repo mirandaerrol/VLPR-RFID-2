@@ -24,7 +24,7 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>#</th>
                     <th>Name</th>
                     <th>Email</th>
                     <th>Created At</th>
@@ -34,7 +34,7 @@
             <tbody>
                 @forelse($guards as $guard)
                     <tr>
-                        <td>{{ $guard->id }}</td>
+                        <td>{{ $loop->iteration }}</td>
                         <td><strong>{{ $guard->name }}</strong></td>
                         <td>{{ $guard->email }}</td>
                         <td>{{ $guard->created_at->format('Y-m-d H:i:s') }}</td>

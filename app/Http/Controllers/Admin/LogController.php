@@ -9,10 +9,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
-
-// ADDED: Import Models needed for the Register Modal
 use App\Models\VehicleOwner;
-// Removed App\Models\Rfid and App\Models\Vehicle as they are no longer used for fetching dropdowns
+
 
 class LogController extends Controller
 {
@@ -20,7 +18,6 @@ class LogController extends Controller
     {
         $search = $request->input('search');
 
-        // REMOVED 'rfid' from with() to prevent SQL error (rfid_id column is gone)
         $logsQuery = Log::with('vehicle', 'owner', 'timeLog')
             ->orderBy('created_at', 'desc');
 
@@ -66,19 +63,14 @@ class LogController extends Controller
             $unregPage,
             ['path' => $request->url(), 'pageName' => 'unreg_page', 'query' => $request->query()]
         );
-
-        // --- UPDATED: Fetch Data for the Register Modal ---
-        // 1. Get all owners for the dropdown
         $owners = VehicleOwner::all();
 
-        // 2. REMOVED: Fetching RFIDs (Vehicles no longer need direct RFID assignment)
 
         return view('admin.logs.index', [
             'registeredLogs' => $registeredPaginated,
             'unregisteredLogs' => $unregisteredPaginated,
             'search' => $search,
             'owners' => $owners, 
-            // 'rfids' => $rfids  <-- Removed
         ]);
     }
 

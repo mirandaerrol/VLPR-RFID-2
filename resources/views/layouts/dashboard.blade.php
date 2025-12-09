@@ -9,8 +9,6 @@
     @include('style')
 </head>
 <body>
-
-    <!-- SIDEBAR -->
     <nav class="sidebar">
         <div class="sidebar-header">
             <i class="fas fa-shield-alt"></i>
@@ -22,8 +20,6 @@
             <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard.*') ? 'active' : '' }}">
                 <i class="fas fa-home"></i> HOME
             </a>
-            
-            <!-- SECTION 1: VEHICLE ENTRY -->
             <div class="nav-section-title">Vehicle Entry</div>
             
             <a href="{{ route('admin.logs.index') }}" class="nav-link {{ request()->routeIs('admin.logs.*') ? 'active' : '' }}">
@@ -33,9 +29,6 @@
             <a href="{{ route('admin.reports.index') }}" class="nav-link {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
                 <i class="fas fa-file-alt"></i> Reports
             </a>
-
-
-            <!-- SECTION 2: MANAGEMENT -->
             <div class="nav-section-title">Management</div>
 
             <a href="{{ route('admin.vehicles.index') }}" class="nav-link {{ request()->routeIs('admin.vehicles.*') ? 'active' : '' }}">
@@ -60,8 +53,6 @@
             </form>
         </div>
     </nav>
-
-    <!-- MAIN CONTENT -->
     <main class="main-wrapper">
         @yield('content')
     </main>

@@ -23,4 +23,8 @@ class VehicleOwner extends Model
         'valid_id',
         'rfid_code',
     ];
+    public function vehicles()
+    {
+        return $this->hasMany(Vehicle::class, 'owner_id', 'owner_id');
+    }
 }

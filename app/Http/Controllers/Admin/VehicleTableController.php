@@ -9,17 +9,10 @@ use App\Models\VehicleOwner;
 
 class VehicleTableController extends Controller
 {
-    // --- UPDATED INDEX METHOD ---
     public function index()
     {
-        // FIX: Removed '.rfid' from eager loading.
-        // We only load 'owner' because 'rfid_code' is now just a column inside the owner table.
         $vehicles = Vehicle::with('owner')->orderBy('created_at', 'desc')->get();
-
-        // 2. Fetch Data for the "Create Modal" Dropdowns
         $owners = VehicleOwner::all();
-
-        // 3. Pass variables to the view
         return view('admin.vehicles.index', compact('vehicles', 'owners'));
     }
 
@@ -34,6 +27,7 @@ class VehicleTableController extends Controller
         $request->validate([
             'owner_id' => 'required|exists:vehicle_owner,owner_id',
             'plate_number' => 'required|string|unique:vehicles,plate_number',
+            'vehicle_type' => 'required|string',
         ]);
 
         Vehicle::create($request->all());
@@ -55,6 +49,7 @@ class VehicleTableController extends Controller
         $request->validate([
             'owner_id' => 'required|exists:vehicle_owner,owner_id',
             'plate_number' => 'required|string|unique:vehicles,plate_number,' . $id . ',vehicle_id',
+            'vehicle_type' => 'required|string',
         ]);
 
         $vehicle->update($request->all());
