@@ -66,19 +66,19 @@
                                 <table class="table table-bordered table-striped" style="width: 100%;">
                                     <thead class="table-light">
                                         <tr>
-                                            <th>#</th>
-                                            <th>METHOD</th> 
-                                            <th>TYPE</th> 
-                                            <th>DATE</th>
-                                            <th>TIME IN</th>
-                                            <th>TIME OUT</th>
-                                            <th>ACTION</th>
+                                            <th style="width: 5%;">ID</th>
+                                            <th style="width: 10%;">METHOD</th> 
+                                            <th style="width: 15%;">TYPE</th>
+                                            <th style="width: 15%;">DATE</th>
+                                            <th style="width: 15%;">TIME IN</th>
+                                            <th style="width: 15%;">TIME OUT</th>
+                                            <th style="width: 10%;">ACTION</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach ($logs as $log)
                                             <tr>
-                                                <td>{{ $loop->iteration }}</td>
+                                                <td>{{ $log->logs_id }}</td>
                                                 <td>
                                                     @if($log->detection_method == 'RFID')
                                                         <span style="background:#e8f5e9; color:#2e7d32; padding:2px 6px; border-radius:4px; font-weight:bold; font-size:0.8rem;">RFID</span>
@@ -177,7 +177,7 @@
                                         <tr>
                                             <th>#</th>
                                             <th>METHOD</th> 
-                                            <th>TYPE</th>
+                                            <th>TYPE</th> 
                                             <th>DATE</th>
                                             <th>TIME IN</th>
                                             <th>TIME OUT</th>
@@ -230,6 +230,12 @@
         </div>
     </div>
 </div>
+
+<!-- ========================================== -->
+<!--            MODALS SECTION                  -->
+<!-- ========================================== -->
+
+<!-- 1. SEARCH MODAL -->
 <div class="modal fade" id="searchModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -251,14 +257,18 @@
         </div>
     </div>
 </div>
+
+<!-- 2. DETAILS MODAL -->
+<!-- UPDATED: Removed custom class and style, reverted to modal-fullscreen for reliable full width -->
 <div class="modal fade" id="detailsModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-dialog modal-fullscreen modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="detailsModalTitle">Log Details</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" id="detailsModalBody">
+            <div class="modal-body" id="detailsModalBody" style="padding: 20px; overflow-x: auto;">
+                <!-- Content injected by JS -->
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -266,6 +276,8 @@
         </div>
     </div>
 </div>
+
+<!-- 3. REGISTER VEHICLE MODAL -->
 <div class="modal fade" id="vehicleModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -288,6 +300,8 @@
                             @endforeach
                         </select>
                     </div>
+
+                    <!-- Added Vehicle Type Select -->
                     <div class="mb-3">
                         <label for="vehicle_type" class="form-label" style="font-weight: bold;">Vehicle Type:</label>
                         <select name="vehicle_type" id="vehicle_type" class="form-control" required>
@@ -314,6 +328,8 @@
         </div>
     </div>
 </div>
+
+<!-- 4. DELETE MODAL -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="text-align: center;">
@@ -333,6 +349,7 @@
 </div>
 
 <script>
+    // --- 1. DETAILS MODAL LOGIC ---
     function openLogDetails(uniqueId, plateNumber) {
         var content = document.getElementById('content-' + uniqueId).innerHTML;
         document.getElementById('detailsModalBody').innerHTML = content;
@@ -340,6 +357,8 @@
         var myModal = new bootstrap.Modal(document.getElementById('detailsModal'));
         myModal.show();
     }
+
+    // --- 2. REGISTER MODAL LOGIC ---
     function openRegisterModal(plateNumber) {
         var plateInput = document.getElementById('plate_number');
         if(plateInput) {
@@ -348,6 +367,8 @@
         var myModal = new bootstrap.Modal(document.getElementById('vehicleModal'));
         myModal.show();
     }
+
+    // --- 3. DELETE MODAL LOGIC ---
     let currentDeleteFormId = null;
     function openDeleteModal(formId) {
         currentDeleteFormId = formId; 
@@ -359,10 +380,13 @@
             document.getElementById(currentDeleteFormId).submit();
         }
     }
+
+    // --- AUTO REFRESH LOGIC ---
     setInterval(function(){
+        // Only reload if no modal is open (to prevent interrupting user interaction)
         if (!document.querySelector('.modal.show')) {
             window.location.reload();
         }
-    }, 5000);
+    }, 5000); // 5000 milliseconds = 5 seconds
 </script>
 @endsection

@@ -790,29 +790,22 @@ nav[role="navigation"] {
     }
     .rfid-btn:hover { background-color: #7c3aed; }
 
-    .custom-modal {
-        display: none; 
-        position: fixed; 
-        z-index: 2000; 
-        left: 0;
-        top: 0;
-        width: 100%; 
-        height: 100%; 
-        overflow: auto; 
-        background-color: rgba(0,0,0,0.5);
-        backdrop-filter: blur(4px);
+    .custom-full-width-modal {
+        max-width: 95% !important;
+        width: 95% !important;
+        margin: 1.75rem auto;
     }
-
-    .custom-modal {
-        display: none; 
-        position: fixed; 
-        z-index: 2000; 
-        left: 0; top: 0;
-        width: 100%; 
-        height: 100%; 
-        overflow: auto; 
-        background-color: rgba(0,0,0,0.5); 
-        backdrop-filter: blur(4px);
+    
+    @media (max-width: 768px) {
+        .sidebar {
+            width: 0;
+            overflow: hidden;
+        }
+        .main-content {
+            margin-left: 0;
+        }
+        /* You might want a toggle button for mobile */
+    }
     }
     .modal-content {
         background-color: #fefefe; 
@@ -853,5 +846,4 @@ nav[role="navigation"] {
         border-radius: 5px; 
         font-size: 1rem; 
     }
-
 </style>
