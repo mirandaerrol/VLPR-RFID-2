@@ -33,6 +33,9 @@ Route::post('/forget-password', [AuthController::class, 'forgetPasswordSubmit'])
 Route::get('/reset-password/{token}/{email}', [AuthController::class, 'resetPassword'])->name('reset_password');
 Route::post('/reset-password/{token}/{email}', [AuthController::class, 'resetPasswordSubmit'])->name('reset_password_submit');
 
+//ADMIN SIGNUP
+Route::get('/admin/signup', [AuthController::class, 'showAdminSignup'])->name('admin.signup');
+Route::post('/admin/signup', [AuthController::class, 'createAdmin'])->name('admin.signup.submit');
 
 //ADMIN ROUTES
 Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -66,6 +69,8 @@ Route::middleware(['role:guard'])->group(function () {
     Route::post('/guard/report', [ReportController::class, 'store'])->name('guard.report');
     //RFID SCAN
     Route::post('/guard/rfid/scan', [GuardController::class, 'scanRfid'])->name('guard.rfid.scan');
+    //SELECT
+    Route::post('/guard/rfid/select', [GuardController::class, 'selectVehicleLog'])->name('guard.rfid.select');
 });
 
 

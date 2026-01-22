@@ -103,4 +103,27 @@ class AuthController extends Controller
 
         return redirect()->route('login')->with('success', 'Password reset successfully');
     }
+
+    public function showAdminSignup()
+    {
+        return view('auth.signup');
+    }
+
+    public function createAdmin(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|unique:users,name',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8|confirmed', 
+        ]);
+
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => 'admin', 
+        ]);
+
+        return redirect()->route('login')->with('success', 'Admin account created successfully! Please login.');
+    }
 }

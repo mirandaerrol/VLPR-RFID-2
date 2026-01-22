@@ -100,7 +100,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title" style="font-size: 1.5rem; margin:0;">Create Vehicle Owner</h2>
+                <h2 class="modal-title" style="font-size: 1.5rem; margin:0;">Register Vehicle Owner</h2>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -182,7 +182,6 @@
         document.getElementById('edit_l_name').value = lname;
         document.getElementById('edit_address').value = address;
         document.getElementById('edit_contact_number').value = contact;
-        document.getElementById('edit_school_year').value = school;
         document.getElementById('edit_valid_id').value = valid;
         
         var typeSelect = document.getElementById('edit_type_of_owner');
@@ -198,7 +197,6 @@
         document.getElementById('show_name').innerText = button.getAttribute('data-fname') + ' ' + button.getAttribute('data-lname');
         document.getElementById('show_address').innerText = button.getAttribute('data-address');
         document.getElementById('show_contact').innerText = button.getAttribute('data-contact');
-        document.getElementById('show_school').innerText = button.getAttribute('data-school');
         document.getElementById('show_type').innerText = button.getAttribute('data-type');
         document.getElementById('show_valid').innerText = button.getAttribute('data-valid');
         document.getElementById('show_rfid').innerText = button.getAttribute('data-rfid-code'); // UPDATED

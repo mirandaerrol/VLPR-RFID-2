@@ -21,12 +21,7 @@
         <label for="edit_contact_number" class="label">Contact Number:</label>
         <input type="text" name="contact_number" id="edit_contact_number" class="input" required>
     </div>
-
-    <div class="input-span">
-        <label for="edit_school_year" class="label">School Year:</label>
-        <input type="text" name="school_year" id="edit_school_year" class="input">
-    </div>
-
+    
     <div class="input-span">
         <label for="edit_type_of_owner" class="label">Type of Owner:</label>
         <select name="type_of_owner" id="edit_type_of_owner" class="input" required>

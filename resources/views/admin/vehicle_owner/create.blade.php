@@ -31,11 +31,6 @@
     </div>
 
     <div class="input-span">
-        <label for="school_year" class="label">School Year:</label>
-        <input type="text" name="school_year" id="school_year" class="input" value="{{ old('school_year') }}">
-    </div>
-
-    <div class="input-span">
         <label for="type_of_owner" class="label">Type of Owner:</label>
         <select name="type_of_owner" id="type_of_owner" class="input" required>
             <option value="student" {{ old('type_of_owner') == 'student' ? 'selected' : '' }}>Student</option>
@@ -48,7 +43,7 @@
         <input type="text" name="valid_id" id="valid_id" class="input" required value="{{ old('valid_id') }}">
     </div>
     <div class="input-span">
-        <label for="rfid_code" class="label" style="color: #27ae60;">RFID Tag (Optional):</label>
+        <label for="rfid_code" class="label" style="color: #27ae60;">RFID Tag:</label>
         <input type="text" name="rfid_code" id="rfid_code" class="input" placeholder="Scan or type RFID code..." value="{{ old('rfid_code') }}">
     </div>
 
