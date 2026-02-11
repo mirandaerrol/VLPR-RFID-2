@@ -789,6 +789,19 @@ nav[role="navigation"] {
         transition: 0.2s;
     }
     .rfid-btn:hover { background-color: #7c3aed; }
+    
+    .custom-modal {
+        display: none; 
+        position: fixed; 
+        z-index: 2000; 
+        left: 0;
+        top: 0;
+        width: 100%; 
+        height: 100%; 
+        overflow: auto; 
+        background-color: rgba(0,0,0,0.5);
+        backdrop-filter: blur(4px);
+    }
 
     .custom-full-width-modal {
         max-width: 95% !important;
@@ -847,3 +860,19 @@ nav[role="navigation"] {
         font-size: 1rem; 
     }
 </style>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto Caps Lock for all text inputs (excluding email/password)
+        const inputs = document.querySelectorAll('input[type="text"]');
+        
+        inputs.forEach(input => {
+            // Apply text-transform for visual feedback
+            input.style.textTransform = "uppercase";
+            
+            // Force value to uppercase on input
+            input.addEventListener('input', function() {
+                this.value = this.value.toUpperCase();
+            });
+        });
+    });
+</script>
