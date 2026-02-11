@@ -120,8 +120,10 @@
         // HYBRID MODE: Connects to Local Python App on your laptop for real-time polling
         const liveUrl = "http://127.0.0.1:5000/latest_detection"; 
         
-        const rfidScanUrl = "{{ route('guard.rfid.scan') }}";
-        const selectUrl = "{{ route('guard.rfid.select') }}";
+        // DYNAMIC URL GENERATION TO FIX MIXED CONTENT ISSUES
+        // Uses window.location.origin to ensure HTTPS is used if the site is on HTTPS
+        const rfidScanUrl = window.location.origin + "/guard/rfid/scan";
+        const selectUrl = window.location.origin + "/guard/rfid/select";
         
         const rfidInput = document.getElementById('rfid_input');
         const rfidStatusText = document.getElementById('rfid_status_text');
@@ -160,7 +162,11 @@
             try {
                 const response = await fetch(rfidScanUrl, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json' 
+                    },
                     body: JSON.stringify({ rfid_code: code })
                 });
 
@@ -169,6 +175,8 @@
                 if (contentType && contentType.indexOf("application/json") !== -1) {
                     data = await response.json();
                 } else {
+                    const text = await response.text();
+                    console.error("Non-JSON response:", text);
                     throw new Error("Server Error: Response was not JSON.");
                 }
 
@@ -191,7 +199,10 @@
                 }
             } catch (error) {
                 console.error("RFID Error:", error);
-                rfidStatusText.innerHTML = `<span style="color: #ef4444; font-size: 0.9em;">${error.message || 'System Error'}</span>`;
+                // More user friendly error message if it's a fetch failure
+                let msg = error.message;
+                if (msg === 'Failed to fetch') msg = 'Network Error: Cannot reach server.';
+                rfidStatusText.innerHTML = `<span style="color: #ef4444; font-size: 0.9em;">${msg || 'System Error'}</span>`;
                 setTimeout(() => {
                     rfidStatusText.innerHTML = '<span style="color: #94a3b8;"><i class="fas fa-arrow-down"></i> Tap card or type below</span>';
                     rfidInput.value = '';
