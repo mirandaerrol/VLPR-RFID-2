@@ -3,8 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-// 1. Import the Paginator
-use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,7 +20,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // 2. Tell Laravel to use Bootstrap styles (No SVGs)
-        Paginator::useBootstrap();
+        // FIX for Railway 419 Error:
+        // Force Laravel to use HTTPS if we are not on a local computer.
+        if (env('APP_ENV') !== 'local') {
+            URL::forceScheme('https');
+        }
     }
 }
