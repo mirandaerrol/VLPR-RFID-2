@@ -31,9 +31,9 @@
                     <p><span style="color:red; font-weight:bold;">●</span> LIVE</p>
                 </div>
                 <div class="live-stream-container">
-                    <!-- UPDATED: Using your specific Railway Backend URL -->
-                    <img src="https://backend-01-production.up.railway.app/video_feed"
-                         onerror="this.onerror=null; this.src=''; this.style.opacity='0.5'; this.alt='Stream Offline (Check Python App URL)';"
+                    <!-- HYBRID MODE: Connects to Local Python App on your laptop -->
+                    <img src="http://127.0.0.1:5000/video_feed"
+                         onerror="this.onerror=null; this.src=''; this.style.opacity='0.5'; this.alt='Stream Offline (Check Local Python App)';"
                          alt="Live Stream">
                 </div>
             </div>
@@ -117,8 +117,8 @@
         const csrfToken = "{{ csrf_token() }}";
         const reportUrl = "{{ route('guard.report') }}";
         
-        // UPDATED: Using your specific Railway Backend URL
-        const liveUrl = "https://backend-01-production.up.railway.app/latest_detection"; 
+        // HYBRID MODE: Connects to Local Python App on your laptop for real-time polling
+        const liveUrl = "http://127.0.0.1:5000/latest_detection"; 
         
         const rfidScanUrl = "{{ route('guard.rfid.scan') }}";
         const selectUrl = "{{ route('guard.rfid.select') }}";
