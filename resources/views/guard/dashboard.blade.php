@@ -278,10 +278,10 @@
             const currentTime = new Date().getTime();
 
             const isDuplicate = !isManual && data.plate === lastProcessedPlate && (currentTime - lastProcessedTime < 5000);
-            let isFresh = true;
-            if (!isManual && data.detected_at) {
-                if (currentTime - new Date(data.detected_at).getTime() > 10000) isFresh = false;
-            }
+            
+            // UPDATED: Removed the logic that calculated time difference.
+            // We now trust the backend to only send us recent data.
+            let isFresh = true; 
 
             if (isFresh || isManual) {
                 let reportBtn = '';
