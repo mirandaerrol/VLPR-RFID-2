@@ -32,6 +32,7 @@ class GuardController extends Controller
             }
 
             // 2. CHECK FOR OPEN SESSION (Time In without Time Out)
+            // If they are already logged in, we log them out regardless of vehicle selection
             $existingLog = Log::where('rfid_code', $code)
                 ->whereHas('timeLog', function($q) {
                     $q->whereNull('time_out');
@@ -41,9 +42,8 @@ class GuardController extends Controller
                 ->first();
 
             if ($existingLog) {
-                // --- LOG OUT (No selection needed, log implies specific vehicle) ---
+                // --- LOG OUT ---
                 
-                // Fix orphan record if needed
                 if (!$existingLog->timeLog) {
                     $timeLog = new TimeLog();
                     $timeLog->logs_id = $existingLog->logs_id;
@@ -70,15 +70,15 @@ class GuardController extends Controller
             } else {
                 // --- LOG IN ---
 
-                // 3. RESTORED: Check for Multiple Vehicles
-                $vehicles = $owner->vehicles;
+                // 3. Check for Multiple Vehicles
+                $vehicles = $owner->vehicles; // Assuming 'vehicles' relationship exists in VehicleOwner model
 
                 if ($vehicles->count() > 1) {
                     // Return special response to trigger Modal on Frontend
                     return response()->json([
                         'success' => true,
                         'multiple_vehicles' => true,
-                        'vehicles' => $vehicles,
+                        'vehicles' => $vehicles, // Send list of vehicles to frontend
                         'owner' => $owner
                     ]);
                 }
@@ -110,6 +110,11 @@ class GuardController extends Controller
 
             $vehicle = Vehicle::find($request->vehicle_id);
             
+            // Verify this vehicle actually belongs to the owner
+            if ($vehicle->owner_id !== $owner->owner_id) {
+                 return response()->json(['success' => false, 'message' => 'Vehicle does not belong to owner'], 403);
+            }
+
             return $this->createLog($owner, $vehicle, $request->rfid_code);
 
         } catch (\Exception $e) {
