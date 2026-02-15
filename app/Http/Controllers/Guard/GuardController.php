@@ -32,7 +32,6 @@ class GuardController extends Controller
             }
 
             // 2. CHECK FOR OPEN SESSION (Time In without Time Out)
-            // If they are already logged in, we log them out regardless of vehicle selection
             $existingLog = Log::where('rfid_code', $code)
                 ->whereHas('timeLog', function($q) {
                     $q->whereNull('time_out');
@@ -71,14 +70,15 @@ class GuardController extends Controller
                 // --- LOG IN ---
 
                 // 3. Check for Multiple Vehicles
-                $vehicles = $owner->vehicles; // Assuming 'vehicles' relationship exists in VehicleOwner model
+                // Explicitly fetch vehicles using owner_id to be safe
+                $vehicles = Vehicle::where('owner_id', $owner->owner_id)->get();
 
                 if ($vehicles->count() > 1) {
                     // Return special response to trigger Modal on Frontend
                     return response()->json([
                         'success' => true,
                         'multiple_vehicles' => true,
-                        'vehicles' => $vehicles, // Send list of vehicles to frontend
+                        'vehicles' => $vehicles,
                         'owner' => $owner
                     ]);
                 }
@@ -94,13 +94,13 @@ class GuardController extends Controller
         }
     }
 
-    // NEW: Method to handle vehicle selection from the modal
-    public function selectVehicle(Request $request)
+    // UPDATED: Method name matches route 'guard.rfid.select' which points to 'selectVehicleLog'
+    public function selectVehicleLog(Request $request)
     {
         try {
             $request->validate([
                 'rfid_code' => 'required|string',
-                'vehicle_id' => 'required|exists:vehicles,vehicle_id'
+                'vehicle_id' => 'required' 
             ]);
 
             $owner = VehicleOwner::where('rfid_code', $request->rfid_code)->first();
@@ -108,8 +108,14 @@ class GuardController extends Controller
                 return response()->json(['success' => false, 'message' => 'Invalid Owner'], 404);
             }
 
-            $vehicle = Vehicle::find($request->vehicle_id);
+            // FIX: Explicitly check 'vehicle_id' column instead of relying on Model default 'id'
+            // This prevents crashes if the primary key isn't set correctly in the Model
+            $vehicle = Vehicle::where('vehicle_id', $request->vehicle_id)->first();
             
+            if (!$vehicle) {
+                return response()->json(['success' => false, 'message' => 'Vehicle not found.'], 404);
+            }
+
             // Verify this vehicle actually belongs to the owner
             if ($vehicle->owner_id !== $owner->owner_id) {
                  return response()->json(['success' => false, 'message' => 'Vehicle does not belong to owner'], 403);
@@ -134,7 +140,7 @@ class GuardController extends Controller
 
             if ($vehicle) {
                 $log->vehicle_id = $vehicle->vehicle_id;
-                // Capture current vehicle type in log for historical accuracy
+                // Capture current vehicle type
                 if (isset($vehicle->vehicle_type)) {
                     $log->vehicle_type = $vehicle->vehicle_type;
                 }
