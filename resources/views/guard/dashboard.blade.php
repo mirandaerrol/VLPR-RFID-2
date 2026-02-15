@@ -100,7 +100,7 @@
     </div>
     
     <!-- Vehicle Selection Modal -->
-    <div id="vehicleSelectionModal" class="custom-modal">
+    <div id="vehicleSelectionModal" class="selection-modal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 style="margin:0; color:var(--text-dark); font-size:1.2rem;">
