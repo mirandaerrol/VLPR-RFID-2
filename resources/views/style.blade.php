@@ -860,7 +860,7 @@ nav[role="navigation"] {
         font-size: 1rem; 
     }
 
-    .custom-modal {
+    .selection-modal {
         display: none; 
         position: fixed; 
         z-index: 2000; 
