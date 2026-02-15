@@ -66,7 +66,7 @@
                                 <table class="table table-bordered table-striped" style="width: 100%;">
                                     <thead class="table-light">
                                         <tr>
-                                            <th style="width: 5%;">ID</th>
+                                            <th style="width: 5%;">#</th> <!-- Changed from ID to # -->
                                             <th style="width: 10%;">METHOD</th> 
                                             <th style="width: 15%;">TYPE</th>
                                             <th style="width: 15%;">DATE</th>
@@ -78,7 +78,7 @@
                                     <tbody>
                                         @foreach ($logs as $log)
                                             <tr>
-                                                <td>{{ $log->logs_id }}</td>
+                                                <td>{{ $loop->iteration }}</td> <!-- Using loop iteration for sequential numbering -->
                                                 <td>
                                                     @if($log->detection_method == 'RFID')
                                                         <span style="background:#e8f5e9; color:#2e7d32; padding:2px 6px; border-radius:4px; font-weight:bold; font-size:0.8rem;">RFID</span>
@@ -113,7 +113,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="5" style="text-align: center; padding: 1rem;">No registered vehicle logs found.</td></tr>
+                    <tr><td colspan="6" style="text-align: center; padding: 1rem;">No registered vehicle logs found.</td></tr> <!-- Updated colspan -->
                 @endforelse
             </tbody>
         </table>
@@ -175,19 +175,19 @@
                                 <table class="table table-bordered table-striped" style="width: 100%;">
                                     <thead class="table-light">
                                         <tr>
-                                            <th>#</th>
-                                            <th>METHOD</th> 
-                                            <th>TYPE</th> 
-                                            <th>DATE</th>
-                                            <th>TIME IN</th>
-                                            <th>TIME OUT</th>
-                                            <th>ACTION</th>
+                                            <th style="width: 5%;">#</th> <!-- Changed from ID to # -->
+                                            <th style="width: 10%;">METHOD</th> 
+                                            <th style="width: 15%;">TYPE</th> 
+                                            <th style="width: 15%;">DATE</th>
+                                            <th style="width: 15%;">TIME IN</th>
+                                            <th style="width: 15%;">TIME OUT</th>
+                                            <th style="width: 10%;">ACTION</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach ($logs as $log)
                                             <tr>
-                                                <td>{{ $loop->iteration }}</td>
+                                                <td>{{ $loop->iteration }}</td> <!-- Using loop iteration for sequential numbering -->
                                                 <td>
                                                     @if($log->detection_method == 'RFID')
                                                         <span style="background:#e8f5e9; color:#2e7d32; padding:2px 6px; border-radius:4px; font-weight:bold; font-size:0.8rem;">RFID</span>
@@ -220,7 +220,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="5" style="text-align: center; padding: 1rem;">No unregistered logs found.</td></tr>
+                    <tr><td colspan="6" style="text-align: center; padding: 1rem;">No unregistered logs found.</td></tr> <!-- Updated colspan -->
                 @endforelse
             </tbody>
         </table>
@@ -259,9 +259,9 @@
 </div>
 
 <!-- 2. DETAILS MODAL -->
-<!-- UPDATED: Removed custom class and style, reverted to modal-fullscreen for reliable full width -->
-<div class="modal fade" id="detailsModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-fullscreen modal-dialog-centered modal-dialog-scrollable">
+<!-- UPDATED: Added inline style to FORCE 95% WIDTH to fix the narrow modal issue -->
+<div class="modal fade" id="detailsModal" tabindex="-1" aria-hidden="true" style="padding-right: 0;">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 95vw; margin-left: auto; margin-right: auto;">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="detailsModalTitle">Log Details</h5>
