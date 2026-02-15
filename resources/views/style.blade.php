@@ -819,7 +819,7 @@ nav[role="navigation"] {
         }
         /* You might want a toggle button for mobile */
     }
-    }
+    
     .modal-content {
         background-color: #fefefe; 
         margin: 5% auto; 
