@@ -862,14 +862,18 @@ nav[role="navigation"] {
 
     .selection-modal {
         display: none; 
-        position: fixed; 
+        position: relative;
+        padding: 25px; 
         z-index: 2000; 
-        left: 0; top: 0; 
         width: 50%; 
-        height: 100%; 
+        height: 50%; 
         overflow: auto; 
-        background-color: rgba(0,0,0,0.5);
-        backdrop-filter: blur(4px);
+        background-color: #fefefe;
+        animation: slideDown 0.3s ease-out;
+    }
+    @keyframes slideDown {
+        from { transform: translateY(-50px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
     }
 
 </style>
