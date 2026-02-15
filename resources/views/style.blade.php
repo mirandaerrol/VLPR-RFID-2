@@ -859,6 +859,18 @@ nav[role="navigation"] {
         border-radius: 5px; 
         font-size: 1rem; 
     }
+
+    .custom-modal {
+        display: none; 
+        position: fixed; 
+        z-index: 2000; 
+        left: 0; top: 0; 
+        width: 100%; height: 100%; 
+        overflow: auto; 
+        background-color: rgba(0,0,0,0.5);
+        backdrop-filter: blur(4px);
+    }
+
 </style>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
