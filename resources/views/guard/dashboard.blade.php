@@ -279,8 +279,8 @@
 
             const isDuplicate = !isManual && data.plate === lastProcessedPlate && (currentTime - lastProcessedTime < 5000);
             
-            // UPDATED: Removed the logic that calculated time difference.
-            // We now trust the backend to only send us recent data.
+            // UPDATED: Removed client-side timestamp check.
+            // We now trust the backend to only send us recent data (it filters for < 30s old).
             let isFresh = true; 
 
             if (isFresh || isManual) {
