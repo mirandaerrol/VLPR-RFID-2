@@ -54,7 +54,8 @@
                         <td><strong>{{ $plateNumber }}</strong></td>
                         <td>{{ $ownerName }}</td>
                         <td>{{ $logs->count() }}</td>
-                        <td>{{ $mostRecentLog->created_at->format('Y-m-d H:i:s') }}</td>
+                        <!-- UPDATED TIMEZONE: Asia/Manila -->
+                        <td>{{ $mostRecentLog->created_at->setTimezone('Asia/Manila')->format('Y-m-d H:i:s') }}</td>
                         <td>
                             <button type="button" class="submit" style="background-color: #3498db;"
                                     onclick="openLogDetails('{{ $uniqueId }}', '{{ $plateNumber }}')">
@@ -66,7 +67,7 @@
                                 <table class="table table-bordered table-striped" style="width: 100%;">
                                     <thead class="table-light">
                                         <tr>
-                                            <th style="width: 5%;">#</th> <!-- Changed from ID to # -->
+                                            <th style="width: 5%;">#</th>
                                             <th style="width: 10%;">METHOD</th> 
                                             <th style="width: 15%;">TYPE</th>
                                             <th style="width: 15%;">DATE</th>
@@ -78,7 +79,7 @@
                                     <tbody>
                                         @foreach ($logs as $log)
                                             <tr>
-                                                <td>{{ $loop->iteration }}</td> <!-- Using loop iteration for sequential numbering -->
+                                                <td>{{ $loop->iteration }}</td>
                                                 <td>
                                                     @if($log->detection_method == 'RFID')
                                                         <span style="background:#e8f5e9; color:#2e7d32; padding:2px 6px; border-radius:4px; font-weight:bold; font-size:0.8rem;">RFID</span>
@@ -89,12 +90,15 @@
                                                     @endif
                                                 </td>
                                                 <td>{{ $log->vehicle_type ?? ($log->vehicle->vehicle_type ?? 'N/A') }}</td>
-                                                <td>{{ $log->created_at->format('d/m/Y') }}</td>
+                                                <!-- UPDATED TIMEZONE: Asia/Manila -->
+                                                <td>{{ $log->created_at->setTimezone('Asia/Manila')->format('d/m/Y') }}</td>
                                                 <td style="color: #27ae60; font-weight: bold;">
-                                                    {{ $log->timeLog->time_in ? \Carbon\Carbon::parse($log->timeLog->time_in)->format('H:i:s') : '--' }}
+                                                    <!-- UPDATED TIMEZONE: Asia/Manila -->
+                                                    {{ $log->timeLog->time_in ? \Carbon\Carbon::parse($log->timeLog->time_in)->setTimezone('Asia/Manila')->format('H:i:s') : '--' }}
                                                 </td>
                                                 <td style="color: #c0392b; font-weight: bold;">
-                                                    {{ $log->timeLog->time_out ? \Carbon\Carbon::parse($log->timeLog->time_out)->format('H:i:s') : '--' }}
+                                                    <!-- UPDATED TIMEZONE: Asia/Manila -->
+                                                    {{ $log->timeLog->time_out ? \Carbon\Carbon::parse($log->timeLog->time_out)->setTimezone('Asia/Manila')->format('H:i:s') : '--' }}
                                                 </td>
                                                 <td style="text-align: center;">
                                                     <form id="delete-reg-{{ $log->logs_id }}" action="{{ route('admin.logs.destroy', $log->logs_id) }}" method="POST">
@@ -113,7 +117,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="6" style="text-align: center; padding: 1rem;">No registered vehicle logs found.</td></tr> <!-- Updated colspan -->
+                    <tr><td colspan="6" style="text-align: center; padding: 1rem;">No registered vehicle logs found.</td></tr>
                 @endforelse
             </tbody>
         </table>
@@ -153,7 +157,8 @@
                         <td><strong style="color: #c0392b;">{{ $plateNumber }}</strong></td>
                         <td><span style="background:#fadbd8; color:#c0392b; padding:2px 8px; border-radius:4px;">Unregistered</span></td>
                         <td>{{ $logs->count() }}</td>
-                        <td>{{ $mostRecentLog->created_at->format('Y-m-d H:i:s') }}</td>
+                        <!-- UPDATED TIMEZONE: Asia/Manila -->
+                        <td>{{ $mostRecentLog->created_at->setTimezone('Asia/Manila')->format('Y-m-d H:i:s') }}</td>
                         <td>
                             <button type="button" class="submit" style="background-color: #7f8c8d; margin-right: 5px;"
                                     onclick="openLogDetails('{{ $uniqueId }}', '{{ $plateNumber }}')">
@@ -175,7 +180,7 @@
                                 <table class="table table-bordered table-striped" style="width: 100%;">
                                     <thead class="table-light">
                                         <tr>
-                                            <th style="width: 5%;">#</th> <!-- Changed from ID to # -->
+                                            <th style="width: 5%;">#</th>
                                             <th style="width: 10%;">METHOD</th> 
                                             <th style="width: 15%;">TYPE</th> 
                                             <th style="width: 15%;">DATE</th>
@@ -187,7 +192,7 @@
                                     <tbody>
                                         @foreach ($logs as $log)
                                             <tr>
-                                                <td>{{ $loop->iteration }}</td> <!-- Using loop iteration for sequential numbering -->
+                                                <td>{{ $loop->iteration }}</td>
                                                 <td>
                                                     @if($log->detection_method == 'RFID')
                                                         <span style="background:#e8f5e9; color:#2e7d32; padding:2px 6px; border-radius:4px; font-weight:bold; font-size:0.8rem;">RFID</span>
@@ -196,12 +201,15 @@
                                                     @endif
                                                 </td>
                                                 <td>{{ $log->vehicle_type ?? 'N/A' }}</td>
-                                                <td>{{ $log->created_at->format('d/m/Y') }}</td>
+                                                <!-- UPDATED TIMEZONE: Asia/Manila -->
+                                                <td>{{ $log->created_at->setTimezone('Asia/Manila')->format('d/m/Y') }}</td>
                                                 <td style="font-weight: bold;">
-                                                    {{ $log->timeLog->time_in ? \Carbon\Carbon::parse($log->timeLog->time_in)->format('H:i:s') : '--' }}
+                                                    <!-- UPDATED TIMEZONE: Asia/Manila -->
+                                                    {{ $log->timeLog->time_in ? \Carbon\Carbon::parse($log->timeLog->time_in)->setTimezone('Asia/Manila')->format('H:i:s') : '--' }}
                                                 </td>
                                                 <td style="font-weight: bold;">
-                                                    {{ $log->timeLog->time_out ? \Carbon\Carbon::parse($log->timeLog->time_out)->format('H:i:s') : '--' }}
+                                                    <!-- UPDATED TIMEZONE: Asia/Manila -->
+                                                    {{ $log->timeLog->time_out ? \Carbon\Carbon::parse($log->timeLog->time_out)->setTimezone('Asia/Manila')->format('H:i:s') : '--' }}
                                                 </td>
                                                 <td style="text-align: center;">
                                                     <form id="delete-unreg-{{ $log->logs_id }}" action="{{ route('admin.logs.destroy', $log->logs_id) }}" method="POST">
@@ -220,7 +228,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="6" style="text-align: center; padding: 1rem;">No unregistered logs found.</td></tr> <!-- Updated colspan -->
+                    <tr><td colspan="6" style="text-align: center; padding: 1rem;">No unregistered logs found.</td></tr>
                 @endforelse
             </tbody>
         </table>
