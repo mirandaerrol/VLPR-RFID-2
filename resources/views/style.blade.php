@@ -861,14 +861,15 @@ nav[role="navigation"] {
     }
 
     .selection-modal {
-        display: none; 
-        position: fixed; 
-        z-index: 2000; 
-        left: 0; top: 0; 
-        width: 100%; height: 100%; 
-        overflow: auto; 
-        background-color: rgba(0,0,0,0.5);
-        backdrop-filter: blur(4px);
+        background-color: #fefefe; 
+        margin: 5% auto; 
+        padding: 25px;
+        border: 1px solid #888; 
+        width: 90%; 
+        max-width: 500px;
+        border-radius: 12px; 
+        position: relative; 
+        animation: slideDown 0.3s ease-out;
     }
 
 </style>
