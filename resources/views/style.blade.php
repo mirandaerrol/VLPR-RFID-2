@@ -861,14 +861,14 @@ nav[role="navigation"] {
     }
 
     .selection-modal {
-        display: none; 
-        position: relative;
-        padding: 25px; 
-        z-index: 2000; 
-        width: 50%; 
-        height: 50%; 
-        overflow: auto; 
-        background-color: #fefefe;
+        background-color: #fefefe; 
+        margin: 5% auto; 
+        padding: 25px;
+        border: 1px solid #888; 
+        width: 90%; 
+        max-width: 500px;
+        border-radius: 12px; 
+        position: relative; 
         animation: slideDown 0.3s ease-out;
     }
     @keyframes slideDown {
