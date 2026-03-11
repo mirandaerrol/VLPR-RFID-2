@@ -21,19 +21,24 @@ class AuthController extends Controller
             'name' => 'required|string',
             'password' => 'required|string',
         ]);
+        
         $user = User::where('name', $request->name)->first();
+        
         if ($user && Hash::check($request->password, $user->password)) {
             Auth::login($user);
             
             $request->session()->regenerate();
+            
+            // Redirect based on user role
             if ($user->isAdmin()) {
                 return redirect()->route('admin.dashboard');
-                
             } elseif ($user->isGuard()) {
                 return redirect()->route('guard_dashboard');
+            } elseif ($user->role === 'master') {
+                return redirect()->route('master.dashboard');
             }
-            
         }
+        
         return back()->withErrors([
             'name' => 'Invalid credentials.',
         ]);

@@ -15,7 +15,47 @@ class GuardController extends Controller
 {
     public function dashboard()
     {
-        return view('guard.dashboard');
+        // Fetch the last 50 logs to pre-populate the dashboard history
+        $initialLogs = DB::table('time_log as t')
+            ->join('logs as l', 't.logs_id', '=', 'l.logs_id')
+            ->leftJoin('vehicles as v', 'l.vehicle_id', '=', 'v.vehicle_id')
+            ->leftJoin('vehicle_owner as o', 'l.owner_id', '=', 'o.owner_id')
+            ->select(
+                'l.detected_plate_number', 'l.detection_method', 'l.vehicle_type as log_vehicle_type',
+                't.time_in', 't.time_out', 't.updated_at',
+                'v.plate_number', 'v.vehicle_type as db_vehicle_type',
+                'o.f_name', 'o.l_name', 'o.contact_number'
+            )
+            ->orderBy('t.updated_at', 'desc')
+            ->limit(50)
+            ->get()
+            ->map(function ($row) {
+                $plate = $row->plate_number ?: $row->detected_plate_number;
+                $status = "";
+                if ($row->time_out) {
+                    $status = "Logged Out";
+                } elseif ($row->f_name) {
+                    $status = "Authorized (Logged In)";
+                } else {
+                    $status = "Unauthorized (Logged In)";
+                }
+                
+                return [
+                    'plate' => $plate,
+                    'status' => $status,
+                    'method' => $row->detection_method,
+                    'time_in' => $row->time_in,
+                    'time_out' => $row->time_out,
+                    'updated_at' => $row->updated_at,
+                    'owner' => $row->f_name ? [
+                        'f_name' => $row->f_name,
+                        'l_name' => $row->l_name,
+                        'contact_number' => $row->contact_number,
+                    ] : null,
+                ];
+            });
+
+        return view('guard.dashboard', compact('initialLogs'));
     }
 
     public function scanRfid(Request $request)
@@ -55,6 +95,7 @@ class GuardController extends Controller
                     $existingLog->timeLog->save();
                 }
 
+                // FIX: Included time_in, time_out, and updated_at
                 return response()->json([
                     'success' => true,
                     'message' => 'Vehicle Logged OUT',
@@ -63,6 +104,9 @@ class GuardController extends Controller
                     'method' => 'RFID',
                     'vehicle_type' => $existingLog->vehicle_type ?? 'N/A',
                     'owner' => $owner,
+                    'time_in' => $existingLog->timeLog->time_in,
+                    'time_out' => $existingLog->timeLog->time_out,
+                    'updated_at' => $existingLog->timeLog->updated_at,
                     'timestamp' => Carbon::now()->format('H:i:s')
                 ]);
 
@@ -70,11 +114,9 @@ class GuardController extends Controller
                 // --- LOG IN ---
 
                 // 3. Check for Multiple Vehicles
-                // Explicitly fetch vehicles using owner_id to be safe
                 $vehicles = Vehicle::where('owner_id', $owner->owner_id)->get();
 
                 if ($vehicles->count() > 1) {
-                    // Return special response to trigger Modal on Frontend
                     return response()->json([
                         'success' => true,
                         'multiple_vehicles' => true,
@@ -94,7 +136,6 @@ class GuardController extends Controller
         }
     }
 
-    // UPDATED: Method name matches route 'guard.rfid.select' which points to 'selectVehicleLog'
     public function selectVehicleLog(Request $request)
     {
         try {
@@ -108,15 +149,12 @@ class GuardController extends Controller
                 return response()->json(['success' => false, 'message' => 'Invalid Owner'], 404);
             }
 
-            // FIX: Explicitly check 'vehicle_id' column instead of relying on Model default 'id'
-            // This prevents crashes if the primary key isn't set correctly in the Model
             $vehicle = Vehicle::where('vehicle_id', $request->vehicle_id)->first();
             
             if (!$vehicle) {
                 return response()->json(['success' => false, 'message' => 'Vehicle not found.'], 404);
             }
 
-            // Verify this vehicle actually belongs to the owner
             if ($vehicle->owner_id !== $owner->owner_id) {
                  return response()->json(['success' => false, 'message' => 'Vehicle does not belong to owner'], 403);
             }
@@ -129,7 +167,6 @@ class GuardController extends Controller
         }
     }
 
-    // Helper function to create the log entry
     private function createLog($owner, $vehicle, $code) {
         DB::beginTransaction();
         try {
@@ -140,7 +177,6 @@ class GuardController extends Controller
 
             if ($vehicle) {
                 $log->vehicle_id = $vehicle->vehicle_id;
-                // Capture current vehicle type
                 if (isset($vehicle->vehicle_type)) {
                     $log->vehicle_type = $vehicle->vehicle_type;
                 }
@@ -150,7 +186,6 @@ class GuardController extends Controller
             $log->updated_at = Carbon::now();
             $log->save();
 
-            // Create New Time Log
             $timeLog = new TimeLog();
             $timeLog->logs_id = $log->logs_id;
             $timeLog->time_in = Carbon::now();
@@ -158,6 +193,7 @@ class GuardController extends Controller
             
             DB::commit();
 
+            // FIX: Included time_in, time_out, and updated_at
             return response()->json([
                 'success' => true,
                 'message' => 'Vehicle Logged IN',
@@ -166,6 +202,9 @@ class GuardController extends Controller
                 'method' => 'RFID',
                 'vehicle_type' => ($vehicle && isset($vehicle->vehicle_type)) ? $vehicle->vehicle_type : 'N/A',
                 'owner' => $owner,
+                'time_in' => $timeLog->time_in,
+                'time_out' => null,
+                'updated_at' => $log->updated_at,
                 'timestamp' => $timeLog->time_in->format('H:i:s')
             ]);
         } catch (\Exception $e) {

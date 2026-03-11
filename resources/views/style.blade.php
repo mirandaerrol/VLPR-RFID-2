@@ -876,6 +876,66 @@ nav[role="navigation"] {
         to { transform: translateY(0); opacity: 1; }
     }
 
+    /* Hover effect for clickable history rows */
+        .history-row {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .history-row:hover {
+            background-color: #f1f5f9 !important;
+        }
+        
+        /* Details Modal Grid Styles */
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #e2e8f0;
+        }
+        .details-grid div {
+            display: flex;
+            flex-direction: column;
+        }
+        .details-grid label {
+            font-size: 0.75rem;
+            color: #64748b;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+        .details-grid span {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        
+        /* Pagination Buttons */
+        .page-btn {
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid #cbd5e1;
+            background: white;
+            color: #475569;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .page-btn:hover:not(:disabled) {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #f1f5f9;
+        }
+
 </style>
 <script>
     document.addEventListener('DOMContentLoaded', function() {

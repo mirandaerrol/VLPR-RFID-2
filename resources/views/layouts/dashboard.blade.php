@@ -27,7 +27,7 @@
             </a>
             
             <a href="{{ route('admin.reports.index') }}" class="nav-link {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
-                <i class="fas fa-file-alt"></i> Reports
+                <i class="fas fa-car"></i> Unregistered Vehicles
             </a>
             <div class="nav-section-title">Management</div>
 

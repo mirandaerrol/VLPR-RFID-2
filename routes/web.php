@@ -73,6 +73,13 @@ Route::middleware(['role:guard'])->group(function () {
     Route::post('/guard/rfid/select', [GuardController::class, 'selectVehicleLog'])->name('guard.rfid.select');
 });
 
+// MASTER ROUTES
+Route::middleware(['role:master'])->prefix('master')->name('master.')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\Master\MasterController::class, 'dashboard'])->name('dashboard');
+    // ADD THIS NEW ROUTE:
+    Route::get('/chart-details', [\App\Http\Controllers\Master\MasterController::class, 'getChartDetails'])->name('chart_details');
+});
+
 
 //LIVE DETECTION API
 Route::get('/vehicle-detection/live', [VehicleController::class, 'liveDetection'])->name('vehicle_detect_live');
