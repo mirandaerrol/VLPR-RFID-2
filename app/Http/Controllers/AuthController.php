@@ -34,7 +34,7 @@ class AuthController extends Controller
                 return redirect()->route('admin.dashboard');
             } elseif ($user->isGuard()) {
                 return redirect()->route('guard_dashboard');
-            } elseif ($user->role === 'master') {
+            } elseif ($user->isMaster()) {
                 return redirect()->route('master.dashboard');
             }
         }

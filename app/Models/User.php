@@ -39,4 +39,14 @@ class User extends Authenticatable
     {
         return $this->role === 'guard';
     }
+
+    public function isMaster()
+    {
+        return $this->role === 'master';
+    }
+
+    public function reports()
+    {
+        return $this->hasMany(Report::class);
+    }
 }

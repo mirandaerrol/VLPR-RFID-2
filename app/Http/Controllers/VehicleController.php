@@ -11,12 +11,7 @@ class VehicleController extends Controller
     public function index()
     {
         $plates = session('plates');
-        return view('vehicle_detection', compact('plates',));
-    }
-
-    public function detectPlate(Request $request)
-    {
-        
+        return view('vehicle_detection', compact('plates'));
     }
 
     public function show()
@@ -29,7 +24,7 @@ class VehicleController extends Controller
     public function liveDetection()
     {
         try {
-            $response = Http::get('http://127.0.0.1:5000/latest_detection');
+            $response = Http::timeout(5)->get('http://127.0.0.1:5000/latest_detection');
 
             if ($response->failed()) {
                 Log::error('Failed to fetch latest detection', [
@@ -41,6 +36,9 @@ class VehicleController extends Controller
 
             return response()->json($response->json());
 
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            Log::error('Connection timeout in liveDetection', ['message' => $e->getMessage()]);
+            return response()->json(['error' => 'Detection server timeout'], 504);
         } catch (\Exception $e) {
             Log::error('Exception in liveDetection', ['message' => $e->getMessage()]);
             return response()->json(['error' => 'Server error while fetching detection'], 500);

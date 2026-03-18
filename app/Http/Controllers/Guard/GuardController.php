@@ -61,7 +61,9 @@ class GuardController extends Controller
     public function scanRfid(Request $request)
     {
         try {
-            $request->validate(['rfid_code' => 'required|string']);
+            $request->validate([
+                'rfid_code' => 'required|string|min:4|max:50|regex:/^[A-Za-z0-9\-]+$/'
+            ]);
             $code = $request->rfid_code;
 
             // 1. Find Owner

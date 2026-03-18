@@ -7,8 +7,6 @@ use Illuminate\Http\Request;
 use App\Models\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Collection;
 use App\Models\VehicleOwner;
 
 
@@ -18,7 +16,7 @@ class LogController extends Controller
     {
         $search = $request->input('search');
 
-        $logsQuery = Log::with('vehicle', 'owner', 'timeLog')
+        $logsQuery = Log::with(['vehicle', 'owner', 'timeLog'])
             ->orderBy('created_at', 'desc');
 
         if ($search) {
@@ -64,7 +62,6 @@ class LogController extends Controller
             ['path' => $request->url(), 'pageName' => 'unreg_page', 'query' => $request->query()]
         );
         $owners = VehicleOwner::all();
-
 
         return view('admin.logs.index', [
             'registeredLogs' => $registeredPaginated,

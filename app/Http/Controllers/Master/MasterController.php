@@ -19,14 +19,15 @@ class MasterController extends Controller
         $selectedMonth = $request->input('month', Carbon::now()->month);
         $selectedYear = $request->input('year', Carbon::now()->year);
 
-        // 1. Core Entity Statistics (Counts)
+        // 1. Core Entity Statistics (Counts) - Using DB::raw for efficiency
         $totalOwners = VehicleOwner::count();
         $totalVehicles = Vehicle::count();
         $totalGuards = User::where('role', 'guard')->count();
         
+        // Optimized distinct count using DB
         $totalUnregistered = Log::whereNull('owner_id')
                                 ->whereNotNull('detected_plate_number')
-                                ->distinct('detected_plate_number')
+                                ->distinct()
                                 ->count('detected_plate_number');
 
         // 2. Fetch Lists for the Interactive Modals
@@ -34,6 +35,7 @@ class MasterController extends Controller
         $vehiclesList = Vehicle::with('owner')->orderBy('created_at', 'desc')->get();
         $guardsList = User::where('role', 'guard')->orderBy('created_at', 'desc')->get();
         
+        // Optimized unregistered list query
         $unregisteredList = Log::whereNull('owner_id')
                                 ->whereNotNull('detected_plate_number')
                                 ->select('detected_plate_number', DB::raw('MAX(created_at) as last_seen'), DB::raw('COUNT(*) as total_detections'))
@@ -112,6 +114,13 @@ class MasterController extends Controller
     // API Route for fetching log details when a chart dot is clicked
     public function getChartDetails(Request $request)
     {
+        $request->validate([
+            'period' => 'required|in:today,month,year',
+            'label' => 'required|string',
+            'month' => 'nullable|integer|min:1|max:12',
+            'year' => 'nullable|integer|min:2020|max:2100',
+        ]);
+        
         $period = $request->query('period');
         $label = $request->query('label'); 
         $month = $request->query('month', Carbon::now()->month);
