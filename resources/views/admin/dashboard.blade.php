@@ -47,7 +47,7 @@
                 </span>
             </div>
             <div class="live-stream-container">
-                <img src="http://127.0.0.1:5000/video_feed" 
+                <img src="{{ $detectionBackendUrl }}/video_feed?api_key={{ $detectionApiKey }}"
                      onerror="this.onerror=null; this.src='https://via.placeholder.com/800x450?text=Camera+Offline'; this.style.opacity='0.5';"
                      alt="Live Stream">
             </div>

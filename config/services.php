@@ -35,4 +35,18 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Vehicle Detection Backend (Flask API)
+    |--------------------------------------------------------------------------
+    | 'url' is the server-side URL (Laravel -> Flask, only works on same network)
+    | 'client_url' is the browser-side URL (Browser -> Flask, via local IP or ngrok)
+    | 'api_key' is shared between Flask and Laravel for authenticated requests
+    */
+    'detection_backend' => [
+        'url' => env('DETECTION_BACKEND_URL', 'http://127.0.0.1:5000'),
+        'client_url' => env('VITE_DETECTION_BACKEND_URL', 'http://127.0.0.1:5000'),
+        'api_key' => env('DETECTION_BACKEND_API_KEY', 'change-me-in-production'),
+    ],
+
 ];

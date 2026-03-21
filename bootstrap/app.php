@@ -13,6 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'throttle.api' => \App\Http\Middleware\ThrottleApiRequests::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

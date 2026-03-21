@@ -49,6 +49,8 @@ Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(functi
     //Logs
     Route::get('/logs', [LogController::class, 'index'])->name('logs.index');
     Route::delete('/logs/{id}', [LogController::class, 'destroy'])->name('logs.destroy');
+    Route::post('/logs/bulk-delete', [LogController::class, 'bulkDestroy'])->name('logs.bulk_destroy');
+    Route::get('/logs/export', [LogController::class, 'export'])->name('logs.export');
 
     //Manage Guards
     Route::get('/guards', [GuardAccountController::class, 'index'])->name('guards.index'); 
@@ -76,11 +78,11 @@ Route::middleware(['role:guard'])->group(function () {
 // MASTER ROUTES
 Route::middleware(['role:master'])->prefix('master')->name('master.')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\Master\MasterController::class, 'dashboard'])->name('dashboard');
-    // ADD THIS NEW ROUTE:
     Route::get('/chart-details', [\App\Http\Controllers\Master\MasterController::class, 'getChartDetails'])->name('chart_details');
 });
 
 
-//LIVE DETECTION API
-Route::get('/vehicle-detection/live', [VehicleController::class, 'liveDetection'])->name('vehicle_detect_live');
-
+//LIVE DETECTION API - Rate limited to 60 requests per minute
+Route::middleware(['throttle.api:60'])->group(function () {
+    Route::get('/vehicle-detection/live', [VehicleController::class, 'liveDetection'])->name('vehicle_detect_live');
+});

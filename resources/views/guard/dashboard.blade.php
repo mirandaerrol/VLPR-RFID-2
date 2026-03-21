@@ -31,7 +31,7 @@
                     <p><span style="color:red; font-weight:bold;">●</span> LIVE</p>
                 </div>
                 <div class="live-stream-container">
-                    <img src="http://127.0.0.1:5000/video_feed"
+                    <img src="{{ $detectionBackendUrl }}/video_feed?api_key={{ $detectionApiKey }}"
                          onerror="this.onerror=null; this.src=''; this.style.opacity='0.5'; this.alt='Stream Offline (Check Local Python App)';"
                          alt="Live Stream">
                 </div>
@@ -140,7 +140,7 @@
     <script>
         const csrfToken = "{{ csrf_token() }}";
         const reportUrl = "{{ route('guard.report') }}";
-        const liveUrl = "http://127.0.0.1:5000/latest_detection"; 
+        const liveUrl = "{{ $detectionBackendUrl }}/latest_detection?api_key={{ $detectionApiKey }}"; 
         
         const rfidScanUrl = window.location.origin + "/guard/rfid/scan";
         const selectUrl = window.location.origin + "/guard/rfid/select";
