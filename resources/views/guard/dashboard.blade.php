@@ -24,16 +24,33 @@
 
     <div class="dashboard-container-grid">
         <div class="left-column-stack">
-            <!-- Video Feed -->
+            <!-- Dual Camera Feed -->
             <div class="card video-card">
                 <div class="card-header">
-                    <h3><i class="fas fa-video" style="color: #3b82f6;"></i> Live Feed</h3>
+                    <h3><i class="fas fa-video" style="color: #3b82f6;"></i> Live Camera Feeds</h3>
                     <p><span style="color:red; font-weight:bold;">●</span> LIVE</p>
                 </div>
-                <div class="live-stream-container">
-                    <img src="{{ $detectionBackendUrl }}/video_feed?api_key={{ $detectionApiKey }}"
-                         onerror="this.onerror=null; this.src=''; this.style.opacity='0.5'; this.alt='Stream Offline (Check Local Python App)';"
-                         alt="Live Stream">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 8px;">
+                    <div>
+                        <div style="text-align:center; padding:4px 0; font-weight:600; font-size:0.8rem; color:#22c55e;">
+                            <i class="fas fa-sign-in-alt"></i> ENTRY GATE
+                        </div>
+                        <div class="live-stream-container" style="margin:0;">
+                            <img src="{{ $detectionBackendUrl }}/video_feed/entry?api_key={{ $detectionApiKey }}"
+                                 onerror="this.onerror=null; this.src=''; this.style.opacity='0.5'; this.alt='Entry Camera Offline';"
+                                 alt="Entry Gate" style="width:100%; border-radius:6px;">
+                        </div>
+                    </div>
+                    <div>
+                        <div style="text-align:center; padding:4px 0; font-weight:600; font-size:0.8rem; color:#ef4444;">
+                            <i class="fas fa-sign-out-alt"></i> EXIT GATE
+                        </div>
+                        <div class="live-stream-container" style="margin:0;">
+                            <img src="{{ $detectionBackendUrl }}/video_feed/exit?api_key={{ $detectionApiKey }}"
+                                 onerror="this.onerror=null; this.src=''; this.style.opacity='0.5'; this.alt='Exit Camera Offline';"
+                                 alt="Exit Gate" style="width:100%; border-radius:6px;">
+                        </div>
+                    </div>
                 </div>
             </div>
 

@@ -41,15 +41,32 @@
     <div class="admin-monitor-grid">
         <div class="card video-card">
             <div class="card-header">
-                <h3><i class="fas fa-video" style="color: #ef4444;"></i> Live Camera Feed</h3>
+                <h3><i class="fas fa-video" style="color: #3b82f6;"></i> Live Camera Feeds</h3>
                 <span class="status-badge status-authorized" style="background:#fee2e2; color:#ef4444; font-size: 0.75rem;">
                     <i class="fas fa-circle" style="font-size: 8px; margin-right: 5px;"></i> LIVE
                 </span>
             </div>
-            <div class="live-stream-container">
-                <img src="{{ $detectionBackendUrl }}/video_feed?api_key={{ $detectionApiKey }}"
-                     onerror="this.onerror=null; this.src='https://via.placeholder.com/800x450?text=Camera+Offline'; this.style.opacity='0.5';"
-                     alt="Live Stream">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px;">
+                <div>
+                    <div style="text-align:center; padding:4px 0; font-weight:600; font-size:0.8rem; color:#22c55e;">
+                        <i class="fas fa-sign-in-alt"></i> ENTRY GATE
+                    </div>
+                    <div class="live-stream-container" style="margin:0;">
+                        <img src="{{ $detectionBackendUrl }}/video_feed/entry?api_key={{ $detectionApiKey }}"
+                             onerror="this.onerror=null; this.src='https://via.placeholder.com/400x225?text=Entry+Offline'; this.style.opacity='0.5';"
+                             alt="Entry Gate" style="width:100%; border-radius:6px;">
+                    </div>
+                </div>
+                <div>
+                    <div style="text-align:center; padding:4px 0; font-weight:600; font-size:0.8rem; color:#ef4444;">
+                        <i class="fas fa-sign-out-alt"></i> EXIT GATE
+                    </div>
+                    <div class="live-stream-container" style="margin:0;">
+                        <img src="{{ $detectionBackendUrl }}/video_feed/exit?api_key={{ $detectionApiKey }}"
+                             onerror="this.onerror=null; this.src='https://via.placeholder.com/400x225?text=Exit+Offline'; this.style.opacity='0.5';"
+                             alt="Exit Gate" style="width:100%; border-radius:6px;">
+                    </div>
+                </div>
             </div>
         </div>
         <div class="card info-card">
