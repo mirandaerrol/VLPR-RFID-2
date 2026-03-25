@@ -64,7 +64,8 @@
 
                             <!-- HIDDEN CONTENT -->
                             <div id="content-{{ $uniqueId }}" style="display: none;">
-                                <table class="table table-bordered table-striped" style="width: 100%;">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-striped" style="width: 100%; min-width: 800px;">
                                     <thead class="table-light">
                                         <tr>
                                             <th style="width: 5%;">#</th>
@@ -78,8 +79,8 @@
                                     </thead>
                                     <tbody>
                                         @foreach ($logs as $log)
-                                            <tr>
-                                                <td>{{ $loop->iteration }}</td>
+                                            <tr data-timestamp="{{ $log->created_at->timestamp }}">
+                                                <td class="row-index">{{ $loop->iteration }}</td>
                                                 <td>
                                                     @if($log->detection_method == 'RFID')
                                                         <span style="background:#e8f5e9; color:#2e7d32; padding:2px 6px; border-radius:4px; font-weight:bold; font-size:0.8rem;">RFID</span>
@@ -114,7 +115,8 @@
                                     </tbody>
                                 </table>
                             </div>
-                        </td>
+                        </div>
+                    </td>
                     </tr>
                 @empty
                     <tr><td colspan="6" style="text-align: center; padding: 1rem;">No registered vehicle logs found.</td></tr>
@@ -177,7 +179,8 @@
                                         Register This Vehicle
                                     </button>
                                 </div>
-                                <table class="table table-bordered table-striped" style="width: 100%;">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-striped" style="width: 100%; min-width: 800px;">
                                     <thead class="table-light">
                                         <tr>
                                             <th style="width: 5%;">#</th>
@@ -191,8 +194,8 @@
                                     </thead>
                                     <tbody>
                                         @foreach ($logs as $log)
-                                            <tr>
-                                                <td>{{ $loop->iteration }}</td>
+                                            <tr data-timestamp="{{ $log->created_at->timestamp }}">
+                                                <td class="row-index">{{ $loop->iteration }}</td>
                                                 <td>
                                                     @if($log->detection_method == 'RFID')
                                                         <span style="background:#e8f5e9; color:#2e7d32; padding:2px 6px; border-radius:4px; font-weight:bold; font-size:0.8rem;">RFID</span>
@@ -225,7 +228,8 @@
                                     </tbody>
                                 </table>
                             </div>
-                        </td>
+                        </div>
+                    </td>
                     </tr>
                 @empty
                     <tr><td colspan="6" style="text-align: center; padding: 1rem;">No unregistered logs found.</td></tr>
@@ -271,9 +275,18 @@
 <div class="modal fade" id="detailsModal" tabindex="-1" aria-hidden="true" style="padding-right: 0;">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 95vw; margin-left: auto; margin-right: auto;">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header d-flex justify-content-between align-items-center">
                 <h5 class="modal-title" id="detailsModalTitle">Log Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <label for="logSortOrder" style="font-size: 0.85rem; font-weight: 600; color: #58bc82; margin: 0; white-space: nowrap;">Sort by Date:</label>
+                        <select id="logSortOrder" class="form-select form-select-sm" style="width: auto; height: 32px; border-radius: 20px; font-size: 0.85rem; padding: 0 10px; border: 1px solid #58bc82; cursor: pointer;" onchange="sortModalLogs()">
+                            <option value="desc">Newest First</option>
+                            <option value="asc">Oldest First</option>
+                        </select>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="margin: 0;"></button>
+                </div>
             </div>
             <div class="modal-body" id="detailsModalBody" style="padding: 20px; overflow-x: auto;">
                 <!-- Content injected by JS -->
@@ -362,8 +375,37 @@
         var content = document.getElementById('content-' + uniqueId).innerHTML;
         document.getElementById('detailsModalBody').innerHTML = content;
         document.getElementById('detailsModalTitle').innerText = 'Detailed Logs for ' + plateNumber;
+        
+        // Reset sort dropdown to default (Newest First)
+        const sortSelect = document.getElementById('logSortOrder');
+        if (sortSelect) sortSelect.value = 'desc';
+        
         var myModal = new bootstrap.Modal(document.getElementById('detailsModal'));
         myModal.show();
+    }
+
+    function sortModalLogs() {
+        const order = document.getElementById('logSortOrder').value;
+        const modalBody = document.getElementById('detailsModalBody');
+        const tableBody = modalBody.querySelector('tbody');
+        if (!tableBody) return;
+
+        const rows = Array.from(tableBody.querySelectorAll('tr'));
+        
+        rows.sort((a, b) => {
+            const timeA = parseInt(a.getAttribute('data-timestamp')) || 0;
+            const timeB = parseInt(b.getAttribute('data-timestamp')) || 0;
+            return order === 'asc' ? timeA - timeB : timeB - timeA;
+        });
+
+        // Clear and re-append
+        tableBody.innerHTML = '';
+        rows.forEach((row, index) => {
+            // Update the row index (# column)
+            const indexCell = row.querySelector('.row-index');
+            if (indexCell) indexCell.textContent = index + 1;
+            tableBody.appendChild(row);
+        });
     }
 
     // --- 2. REGISTER MODAL LOGIC ---

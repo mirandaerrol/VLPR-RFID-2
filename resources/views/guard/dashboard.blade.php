@@ -154,6 +154,24 @@
         </div>
     </div>
 
+    <!-- Modal: Report Confirmation -->
+    <div id="reportModal" class="custom-modal">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <div class="modal-header" style="justify-content: center; border-bottom: none; padding-bottom: 0;">
+                <div style="background: #fee2e2; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 15px;">
+                    <i class="fas fa-exclamation-triangle" style="color: #ef4444; font-size: 1.5rem;"></i>
+                </div>
+            </div>
+            <h3 style="margin-top: 0; color: #1e293b;">Report Vehicle?</h3>
+            <p style="color: #64748b; margin-bottom: 25px;">Are you sure you want to report plate <b id="reportPlateDisplay" style="color: #1e293b;"></b> as an unregistered vehicle to the administrator?</p>
+            
+            <div style="display: flex; gap: 10px;">
+                <button class="page-btn" onclick="closeModal('reportModal')" style="flex: 1; background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0;">Cancel</button>
+                <button id="confirmReportBtn" class="delete" style="flex: 1; margin: 0;">Yes, Report</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const csrfToken = "{{ csrf_token() }}";
         const reportUrl = "{{ route('guard.report') }}";
@@ -170,12 +188,14 @@
         
         const selectionModal = document.getElementById('vehicleSelectionModal');
         const historyModal = document.getElementById('historyDetailsModal');
+        const reportModal = document.getElementById('reportModal');
         const btnContainer = document.getElementById('vehicleButtons');
         
         let pendingRfid = null;
         let lastAlertedPlate = null;
         let lastProcessedPlate = null; 
         let lastProcessedTime = 0;
+        let pendingReportPlate = null;
 
         // --- History Pagination State ---
         let allHistoryLogs = {!! json_encode($initialLogs ?? []) !!};
@@ -192,6 +212,9 @@
                 };
             });
             renderHistoryTable();
+
+            // Set up report confirmation
+            document.getElementById('confirmReportBtn').onclick = submitReport;
         });
 
         // Focus RFID input unless clicking a modal or button
@@ -206,6 +229,7 @@
 
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
+            if (modalId === 'reportModal') pendingReportPlate = null;
             rfidInput.value = '';
             rfidInput.focus();
         }
@@ -349,7 +373,7 @@
             if (isManual || !isDuplicate) {
                 let reportBtn = '';
                 if(!isAuth) {
-                    reportBtn = `<div style="margin-top:15px; border-top:1px dashed #eee; padding-top:15px;"><button id="reportBtn" onclick="reportVehicle('${data.plate}')" class="delete" style="width:100%;">Report to Admin</button></div>`;
+                    reportBtn = `<div style="margin-top:15px; border-top:1px dashed #eee; padding-top:15px;"><button id="reportBtn" onclick="openReportModal('${data.plate}')" class="delete" style="width:100%;">Report to Admin</button></div>`;
                 }
                 
                 let methodBadge = '';
@@ -528,6 +552,24 @@
             // Determine method badge styling
             let methodStyle = log.method === 'RFID' ? "background:#e8f5e9; color:#2e7d32;" : "background:#e3f2fd; color:#1565c0;";
 
+            // Report button logic for historical logs
+            let reportBtnHtml = '';
+            let isAuthorized = log.isAuth;
+            if (isAuthorized === undefined) {
+                const str = (log.status || "").toLowerCase();
+                isAuthorized = str.includes('authorized') || str.includes('logged out') || str.includes('exited');
+            }
+            
+            if (!isAuthorized) {
+                reportBtnHtml = `
+                    <div style="margin-top:20px; border-top:1px dashed #eee; padding-top:15px;">
+                        <button onclick="closeModal('historyDetailsModal'); openReportModal('${log.plate}')" class="delete" style="width:100%;">
+                            <i class="fas fa-exclamation-circle"></i> Report to Admin
+                        </button>
+                    </div>
+                `;
+            }
+
             modalBody.innerHTML = `
                 <div style="text-align: center; margin-bottom: 20px;">
                     <span style="font-size: 2.5rem; font-weight: 800; color: var(--text-dark);">${log.plate}</span>
@@ -548,22 +590,49 @@
                     <div style="grid-column: span 2;"><label>Time In</label><span>${timeInStr}</span></div>
                     <div style="grid-column: span 2;"><label>Time Out</label><span>${timeOutStr}</span></div>
                 </div>
+                ${reportBtnHtml}
             `;
             
             historyModal.style.display = 'block';
         }
 
-        async function reportVehicle(plate) {
-            if(!confirm(`Report vehicle ${plate} as unregistered?`)) return;
-             try {
+        // --- REPORTING LOGIC ---
+        function openReportModal(plate) {
+            pendingReportPlate = plate;
+            document.getElementById('reportPlateDisplay').innerText = plate;
+            reportModal.style.display = 'block';
+        }
+
+        async function submitReport() {
+            if(!pendingReportPlate) return;
+            
+            const btn = document.getElementById('confirmReportBtn');
+            const originalText = btn.innerText;
+            btn.innerText = "Reporting...";
+            btn.disabled = true;
+
+            try {
                 const response = await fetch(reportUrl, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken},
-                    body: JSON.stringify({ plate_number: plate })
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                    body: JSON.stringify({ plate_number: pendingReportPlate })
                 });
-                const d = await response.json();
-                if(response.ok) alert(d.message); else alert("Error: " + d.message);
-            } catch (e) { console.error(e); }
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert(data.message);
+                    closeModal('reportModal');
+                } else {
+                    alert("Error: " + (data.message || "Could not complete report."));
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Connection Error: " + e.message);
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
         }
 
         setInterval(fetchLatestDetection, 3000);

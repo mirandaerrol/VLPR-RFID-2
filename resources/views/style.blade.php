@@ -820,7 +820,8 @@ nav[role="navigation"] {
         /* You might want a toggle button for mobile */
     }
     
-    .modal-content {
+    /* Modal styles specifically for custom-modal (like in guard dashboard) */
+    .custom-modal .modal-content {
         background-color: #fefefe; 
         margin: 5% auto; 
         padding: 25px;
