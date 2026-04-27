@@ -1,11 +1,10 @@
-<!-- EDIT FORM (Included in Modal) -->
-<form id="editVehicleForm" action="#" method="POST" style="display: flex; flex-direction: column; gap: 15px;">
+<form id="editVehicleForm" action="#" method="POST">
     @csrf
     @method('PUT')
     
-    <div class="input-span">
-        <label for="edit_owner_id" class="label">Vehicle Owner:</label>
-        <select name="owner_id" id="edit_owner_id" required class="input">
+    <div class="form-group">
+        <label for="edit_owner_id" class="form-label">Vehicle Owner</label>
+        <select name="owner_id" id="edit_owner_id" required class="form-control">
             <option value="">Select Owner</option>
             @foreach($owners as $owner)
                 <option value="{{ $owner->owner_id }}">
@@ -15,9 +14,9 @@
         </select>
     </div>
 
-    <div class="input-span">
-        <label for="edit_vehicle_type" class="label">Vehicle Type:</label>
-        <select name="vehicle_type" id="edit_vehicle_type" class="input" required>
+    <div class="form-group">
+        <label for="edit_vehicle_type" class="form-label">Vehicle Type</label>
+        <select name="vehicle_type" id="edit_vehicle_type" class="form-control" required>
             <option value="Car">Car</option>
             <option value="Motorcycle">Motorcycle</option>
             <option value="SUV">SUV</option>
@@ -26,12 +25,13 @@
         </select>
     </div>
 
-    <div class="input-span">
-        <label for="edit_plate_number" class="label">Plate Number:</label>
-        <input type="text" name="plate_number" id="edit_plate_number" class="input" required>
+    <div class="form-group">
+        <label for="edit_plate_number" class="form-label">Plate Number</label>
+        <input type="text" name="plate_number" id="edit_plate_number" class="form-control" required placeholder="e.g. ABC 1234">
     </div>
-    <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
-        <button type="button" data-bs-dismiss="modal" style="padding: 10px 20px; background: #95a5a6; color: white; border: none; border-radius: 5px; cursor: pointer;">Cancel</button>
-        <button type="submit" class="submit" style="width: auto;">Update Vehicle</button>
+
+    <div class="flex-center gap-4 mt-8" style="justify-content: flex-end;">
+        <button type="button" class="btn btn-outline" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-primary">Update Vehicle</button>
     </div>
 </form>

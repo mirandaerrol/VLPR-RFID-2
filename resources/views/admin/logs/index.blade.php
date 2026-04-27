@@ -1,268 +1,221 @@
 @extends('layouts.dashboard')
-@include('style')
 
 @section('content')
 <div class="dashboard-container">
-    <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h1 style="margin:0;">Vehicle Logs</h1>
-        
-        <button type="button" class="submit" data-bs-toggle="modal" data-bs-target="#searchModal">
+    <div class="mb-8 flex-between">
+        <h1 class="text-3xl font-800"><i class="fas fa-list-ul"></i> Vehicle Logs</h1>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#searchModal">
             <i class="fas fa-search"></i> Search Logs
         </button>
     </div>
 
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-    @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            {{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div id="success-popup" class="card card-padding mb-6 status-authorized" style="background-color: #f0fdf4; border-color: #bbf7d0; color: #166534;">
+            <i class="fas fa-check-circle mr-2"></i> {{ session('success') }}
         </div>
     @endif
 
-    <!--Registered vehicle-->
-    <div class="card" style="margin-bottom: 30px;">
-        <h2 style="color: #27ae60; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">
-            <i class="fas fa-check-circle"></i> Registered Vehicles
-        </h2>
-
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Plate Number</th>
-                    <th>Owner Name</th>
-                    <th>Total Logs</th>
-                    <th>Last Seen</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="registeredTableBody">
-                @forelse ($registeredLogs as $plateNumber => $logs)
-                    @php
-                        $mostRecentLog = $logs->first();
-                        $ownerName = $mostRecentLog->owner ? $mostRecentLog->owner->f_name . ' ' . $mostRecentLog->owner->l_name : 'No Owner Assigned';
-                        $uniqueId = 'reg_' . Str::slug($plateNumber);
-                    @endphp
-                    
-                    <tr class="log-group-header">
-                        <td>{{ $loop->iteration }}</td>
-                        <td><strong>{{ $plateNumber }}</strong></td>
-                        <td>{{ $ownerName }}</td>
-                        <td>{{ $logs->count() }}</td>
-                        <!-- UPDATED TIMEZONE: Asia/Manila -->
-                        <td>{{ $mostRecentLog->created_at->setTimezone('Asia/Manila')->format('Y-m-d H:i:s') }}</td>
-                        <td>
-                            <button type="button" class="submit" style="background-color: #3498db;"
-                                    onclick="openLogDetails('{{ $uniqueId }}', '{{ $plateNumber }}')">
-                                View Details
-                            </button>
-
-                            <!-- HIDDEN CONTENT -->
-                            <div id="content-{{ $uniqueId }}" style="display: none;">
-                                <div class="table-responsive">
-                                    <table class="table table-bordered table-striped" style="width: 100%; min-width: 800px;">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th style="width: 5%;">#</th>
-                                            <th style="width: 10%;">METHOD</th> 
-                                            <th style="width: 15%;">TYPE</th>
-                                            <th style="width: 15%;">DATE</th>
-                                            <th style="width: 15%;">TIME IN</th>
-                                            <th style="width: 15%;">TIME OUT</th>
-                                            <th style="width: 10%;">ACTION</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($logs as $log)
-                                            <tr data-timestamp="{{ $log->created_at->timestamp }}">
-                                                <td class="row-index">{{ $loop->iteration }}</td>
-                                                <td>
-                                                    @if($log->detection_method == 'RFID')
-                                                        <span style="background:#e8f5e9; color:#2e7d32; padding:2px 6px; border-radius:4px; font-weight:bold; font-size:0.8rem;">RFID</span>
-                                                    @elseif($log->detection_method == 'PLATE' || $log->detection_method == 'CAMERA')
-                                                        <span style="background:#e3f2fd; color:#1565c0; padding:2px 6px; border-radius:4px; font-weight:bold; font-size:0.8rem;">PLATE</span>
-                                                    @else
-                                                        <span style="color:#666;">--</span>
-                                                    @endif
-                                                </td>
-                                                <td>{{ $log->vehicle_type ?? ($log->vehicle->vehicle_type ?? 'N/A') }}</td>
-                                                <!-- UPDATED TIMEZONE: Asia/Manila -->
-                                                <td>{{ $log->created_at->setTimezone('Asia/Manila')->format('d/m/Y') }}</td>
-                                                <td style="color: #27ae60; font-weight: bold;">
-                                                    <!-- UPDATED TIMEZONE: Asia/Manila -->
-                                                    {{ $log->timeLog->time_in ? \Carbon\Carbon::parse($log->timeLog->time_in)->setTimezone('Asia/Manila')->format('H:i:s') : '--' }}
-                                                </td>
-                                                <td style="color: #c0392b; font-weight: bold;">
-                                                    <!-- UPDATED TIMEZONE: Asia/Manila -->
-                                                    {{ $log->timeLog->time_out ? \Carbon\Carbon::parse($log->timeLog->time_out)->setTimezone('Asia/Manila')->format('H:i:s') : '--' }}
-                                                </td>
-                                                <td style="text-align: center;">
-                                                    <form id="delete-reg-{{ $log->logs_id }}" action="{{ route('admin.logs.destroy', $log->logs_id) }}" method="POST">
-                                                        @csrf @method('DELETE')
-                                                        <button type="button" class="btn btn-sm btn-danger"
-                                                                onclick="openDeleteModal('delete-reg-{{ $log->logs_id }}')">
-                                                            Delete
-                                                        </button>
-                                                    </form>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </td>
+    <!-- Registered Vehicles Section -->
+    <div class="card">
+        <div class="card-header" style="background-color: #f0fdf4; border-bottom-color: #dcfce7;">
+            <h3 style="color: #166534;"><i class="fas fa-check-circle"></i> Registered Vehicles</h3>
+        </div>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Plate Number</th>
+                        <th>Owner Name</th>
+                        <th>Total Logs</th>
+                        <th>Last Seen</th>
+                        <th>Action</th>
                     </tr>
-                @empty
-                    <tr><td colspan="6" style="text-align: center; padding: 1rem;">No registered vehicle logs found.</td></tr>
-                @endforelse
-            </tbody>
-        </table>
-        
-        <div style="margin-top: 15px; display: flex; justify-content: center;">
+                </thead>
+                <tbody id="registeredTableBody">
+                    @forelse ($registeredLogs as $plateNumber => $logs)
+                        @php
+                            $mostRecentLog = $logs->first();
+                            $ownerName = $mostRecentLog->owner ? $mostRecentLog->owner->f_name . ' ' . $mostRecentLog->owner->l_name : 'No Owner Assigned';
+                            $uniqueId = 'reg_' . Str::slug($plateNumber);
+                        @endphp
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
+                            <td><strong class="text-dark">{{ $plateNumber }}</strong></td>
+                            <td class="text-slate-600">{{ $ownerName }}</td>
+                            <td><span class="status-badge status-pending" style="padding: 0.2rem 0.6rem;">{{ $logs->count() }}</span></td>
+                            <td class="text-slate-500 fs-sm">{{ $mostRecentLog->created_at->setTimezone('Asia/Manila')->format('Y-m-d H:i:s') }}</td>
+                            <td>
+                                <button type="button" class="btn btn-blue" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;"
+                                        onclick="openLogDetails('{{ $uniqueId }}', '{{ $plateNumber }}')">
+                                    View Details
+                                </button>
+
+                                <div id="content-{{ $uniqueId }}" style="display: none;">
+                                    <table class="table" style="min-width: 600px;">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Method</th> 
+                                                <th>Type</th>
+                                                <th>Time In</th>
+                                                <th>Time Out</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($logs as $log)
+                                                <tr data-timestamp="{{ $log->created_at->timestamp }}">
+                                                    <td class="row-index">{{ $loop->iteration }}</td>
+                                                    <td>
+                                                        @if($log->detection_method == 'RFID')
+                                                            <span class="status-badge status-authorized" style="font-size: 0.7rem; padding: 0.1rem 0.4rem;">RFID</span>
+                                                        @else
+                                                            <span class="status-badge status-pending" style="font-size: 0.7rem; padding: 0.1rem 0.4rem; background-color: #e0f2fe; color: #0369a1;">PLATE</span>
+                                                        @endif
+                                                    </td>
+                                                    <td class="fs-sm">{{ $log->vehicle_type ?? ($log->vehicle->vehicle_type ?? 'N/A') }}</td>
+                                                    <td class="font-bold text-green-500">
+                                                        {{ $log->timeLog->time_in ? \Carbon\Carbon::parse($log->timeLog->time_in)->setTimezone('Asia/Manila')->format('H:i:s') : '--' }}
+                                                    </td>
+                                                    <td class="font-bold text-red-500">
+                                                        {{ $log->timeLog->time_out ? \Carbon\Carbon::parse($log->timeLog->time_out)->setTimezone('Asia/Manila')->format('H:i:s') : '--' }}
+                                                    </td>
+                                                    <td>
+                                                        <form id="delete-reg-{{ $log->logs_id }}" action="{{ route('admin.logs.destroy', $log->logs_id) }}" method="POST">
+                                                            @csrf @method('DELETE')
+                                                            <button type="button" class="btn btn-red" style="padding: 0.3rem 0.6rem;"
+                                                                    onclick="openDeleteModal('delete-reg-{{ $log->logs_id }}')">
+                                                                <i class="fas fa-trash-alt" style="font-size: 0.75rem;"></i>
+                                                            </button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="6" class="text-center text-slate-400 py-8">No registered vehicle logs found.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        <div class="card-padding" style="border-top: 1px solid var(--slate-100);">
             {{ $registeredLogs->appends(['search' => $search, 'unreg_page' => request('unreg_page')])->links('pagination::simple-bootstrap-5') }}
         </div>
     </div>
 
-
-    <!--unregistered and unknown vehicle-->
+    <!-- Unregistered Vehicles Section -->
     <div class="card">
-        <h2 style="color: #c0392b; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">
-            <i class="fas fa-exclamation-triangle"></i> Unregistered / Unknown
-        </h2>
-
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Detected Plate</th>
-                    <th>Status</th>
-                    <th>Total Logs</th>
-                    <th>Last Seen</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="unregisteredTableBody">
-                @forelse ($unregisteredLogs as $plateNumber => $logs)
-                    @php 
-                        $mostRecentLog = $logs->first(); 
-                        $uniqueId = 'unreg_' . Str::slug($plateNumber);
-                    @endphp
-                    
-                    <tr class="log-group-header">
-                        <td>{{ $loop->iteration }}</td>
-                        <td><strong style="color: #c0392b;">{{ $plateNumber }}</strong></td>
-                        <td><span style="background:#fadbd8; color:#c0392b; padding:2px 8px; border-radius:4px;">Unregistered</span></td>
-                        <td>{{ $logs->count() }}</td>
-                        <!-- UPDATED TIMEZONE: Asia/Manila -->
-                        <td>{{ $mostRecentLog->created_at->setTimezone('Asia/Manila')->format('Y-m-d H:i:s') }}</td>
-                        <td>
-                            <button type="button" class="submit" style="background-color: #7f8c8d; margin-right: 5px;"
-                                    onclick="openLogDetails('{{ $uniqueId }}', '{{ $plateNumber }}')">
-                                View Details
-                            </button>
-
-                            <button type="button" class="submit" style="background-color: #f39c12;"
-                                    onclick="openRegisterModal('{{ $plateNumber }}')">
-                                Register
-                            </button>
-
-                            <!-- HIDDEN CONTENT -->
-                            <div id="content-{{ $uniqueId }}" style="display: none;">
-                                 <div class="mb-3 text-end">
-                                    <button type="button" class="btn btn-warning btn-sm" onclick="openRegisterModal('{{ $plateNumber }}')">
-                                        Register This Vehicle
-                                    </button>
-                                </div>
-                                <div class="table-responsive">
-                                    <table class="table table-bordered table-striped" style="width: 100%; min-width: 800px;">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th style="width: 5%;">#</th>
-                                            <th style="width: 10%;">METHOD</th> 
-                                            <th style="width: 15%;">TYPE</th> 
-                                            <th style="width: 15%;">DATE</th>
-                                            <th style="width: 15%;">TIME IN</th>
-                                            <th style="width: 15%;">TIME OUT</th>
-                                            <th style="width: 10%;">ACTION</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($logs as $log)
-                                            <tr data-timestamp="{{ $log->created_at->timestamp }}">
-                                                <td class="row-index">{{ $loop->iteration }}</td>
-                                                <td>
-                                                    @if($log->detection_method == 'RFID')
-                                                        <span style="background:#e8f5e9; color:#2e7d32; padding:2px 6px; border-radius:4px; font-weight:bold; font-size:0.8rem;">RFID</span>
-                                                    @else
-                                                        <span style="background:#e3f2fd; color:#1565c0; padding:2px 6px; border-radius:4px; font-weight:bold; font-size:0.8rem;">PLATE</span>
-                                                    @endif
-                                                </td>
-                                                <td>{{ $log->vehicle_type ?? 'N/A' }}</td>
-                                                <!-- UPDATED TIMEZONE: Asia/Manila -->
-                                                <td>{{ $log->created_at->setTimezone('Asia/Manila')->format('d/m/Y') }}</td>
-                                                <td style="font-weight: bold;">
-                                                    <!-- UPDATED TIMEZONE: Asia/Manila -->
-                                                    {{ $log->timeLog->time_in ? \Carbon\Carbon::parse($log->timeLog->time_in)->setTimezone('Asia/Manila')->format('H:i:s') : '--' }}
-                                                </td>
-                                                <td style="font-weight: bold;">
-                                                    <!-- UPDATED TIMEZONE: Asia/Manila -->
-                                                    {{ $log->timeLog->time_out ? \Carbon\Carbon::parse($log->timeLog->time_out)->setTimezone('Asia/Manila')->format('H:i:s') : '--' }}
-                                                </td>
-                                                <td style="text-align: center;">
-                                                    <form id="delete-unreg-{{ $log->logs_id }}" action="{{ route('admin.logs.destroy', $log->logs_id) }}" method="POST">
-                                                        @csrf @method('DELETE')
-                                                        <button type="button" class="btn btn-sm btn-danger"
-                                                                onclick="openDeleteModal('delete-unreg-{{ $log->logs_id }}')">
-                                                            Delete
-                                                        </button>
-                                                    </form>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </td>
+        <div class="card-header" style="background-color: #fef2f2; border-bottom-color: #fee2e2;">
+            <h3 style="color: #991b1b;"><i class="fas fa-exclamation-triangle"></i> Unregistered / Unknown</h3>
+        </div>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Detected Plate</th>
+                        <th>Status</th>
+                        <th>Total Logs</th>
+                        <th>Last Seen</th>
+                        <th>Action</th>
                     </tr>
-                @empty
-                    <tr><td colspan="6" style="text-align: center; padding: 1rem;">No unregistered logs found.</td></tr>
-                @endforelse
-            </tbody>
-        </table>
+                </thead>
+                <tbody id="unregisteredTableBody">
+                    @forelse ($unregisteredLogs as $plateNumber => $logs)
+                        @php 
+                            $mostRecentLog = $logs->first(); 
+                            $uniqueId = 'unreg_' . Str::slug($plateNumber);
+                        @endphp
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
+                            <td><strong style="color: #ef4444;">{{ $plateNumber }}</strong></td>
+                            <td><span class="status-badge status-unauthorized" style="font-size: 0.75rem;">Unregistered</span></td>
+                            <td><span class="status-badge status-pending" style="padding: 0.2rem 0.6rem;">{{ $logs->count() }}</span></td>
+                            <td class="text-slate-500 fs-sm">{{ $mostRecentLog->created_at->setTimezone('Asia/Manila')->format('Y-m-d H:i:s') }}</td>
+                            <td class="flex gap-2">
+                                <button type="button" class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;"
+                                        onclick="openLogDetails('{{ $uniqueId }}', '{{ $plateNumber }}')">
+                                    Details
+                                </button>
+                                <button type="button" class="btn btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;"
+                                        onclick="openRegisterModal('{{ $plateNumber }}')">
+                                    Register
+                                </button>
 
-        <div style="margin-top: 15px; display: flex; justify-content: center;">
+                                <div id="content-{{ $uniqueId }}" style="display: none;">
+                                    <div class="mb-4" style="text-align: right;">
+                                        <button type="button" class="btn btn-primary" onclick="openRegisterModal('{{ $plateNumber }}')">
+                                            <i class="fas fa-plus-circle"></i> Register This Vehicle
+                                        </button>
+                                    </div>
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Method</th> 
+                                                <th>Time In</th>
+                                                <th>Time Out</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($logs as $log)
+                                                <tr data-timestamp="{{ $log->created_at->timestamp }}">
+                                                    <td class="row-index">{{ $loop->iteration }}</td>
+                                                    <td>
+                                                        <span class="status-badge" style="font-size: 0.7rem; background-color: #e0f2fe; color: #0369a1;">PLATE</span>
+                                                    </td>
+                                                    <td class="font-bold">{{ $log->timeLog->time_in ? \Carbon\Carbon::parse($log->timeLog->time_in)->setTimezone('Asia/Manila')->format('H:i:s') : '--' }}</td>
+                                                    <td class="font-bold">{{ $log->timeLog->time_out ? \Carbon\Carbon::parse($log->timeLog->time_out)->setTimezone('Asia/Manila')->format('H:i:s') : '--' }}</td>
+                                                    <td>
+                                                        <form id="delete-unreg-{{ $log->logs_id }}" action="{{ route('admin.logs.destroy', $log->logs_id) }}" method="POST">
+                                                            @csrf @method('DELETE')
+                                                            <button type="button" class="btn btn-red" style="padding: 0.3rem 0.6rem;"
+                                                                    onclick="openDeleteModal('delete-unreg-{{ $log->logs_id }}')">
+                                                                <i class="fas fa-trash-alt"></i>
+                                                            </button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="6" class="text-center text-slate-400 py-8">No unregistered logs found.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        <div class="card-padding" style="border-top: 1px solid var(--slate-100);">
             {{ $unregisteredLogs->appends(['search' => $search, 'reg_page' => request('reg_page')])->links('pagination::simple-bootstrap-5') }}
         </div>
     </div>
 </div>
 
-<!-- ========================================== -->
-<!--            MODALS SECTION                  -->
-<!-- ========================================== -->
-
-<!-- 1. SEARCH MODAL -->
+<!-- Modals -->
 <div class="modal fade" id="searchModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Search Vehicle Logs</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h3 class="font-bold"><i class="fas fa-search text-primary"></i> Search Logs</h3>
+                <span class="close-btn" data-bs-dismiss="modal">&times;</span>
             </div>
             <div class="modal-body">
                 <form method="GET" action="{{ route('admin.logs.index') }}">
-                    <div class="mb-3">
-                        <label for="logSearchModal" class="form-label">Plate Number</label>
-                        <input type="text" name="search" id="logSearchModal" class="form-control" placeholder="Type plate number..." value="{{ $search ?? '' }}">
+                    <div class="form-group">
+                        <label class="form-label">Plate Number</label>
+                        <input type="text" name="search" class="form-control" placeholder="Type plate number..." value="{{ $search ?? '' }}">
                     </div>
-                    <div class="d-flex justify-content-end">
-                        <button type="submit" class="btn btn-primary">Search</button>
+                    <div class="flex-center mt-6" style="justify-content: flex-end;">
+                        <button type="submit" class="btn btn-primary">Search Now</button>
                     </div>
                 </form>
             </div>
@@ -270,62 +223,48 @@
     </div>
 </div>
 
-<!-- 2. DETAILS MODAL -->
-<!-- UPDATED: Added inline style to FORCE 95% WIDTH to fix the narrow modal issue -->
-<div class="modal fade" id="detailsModal" tabindex="-1" aria-hidden="true" style="padding-right: 0;">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width: 95vw; margin-left: auto; margin-right: auto;">
+<div class="modal fade" id="detailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 900px;">
         <div class="modal-content">
-            <div class="modal-header d-flex justify-content-between align-items-center">
-                <h5 class="modal-title" id="detailsModalTitle">Log Details</h5>
-                <div class="d-flex align-items-center gap-3">
-                    <div class="d-flex align-items-center gap-2">
-                        <label for="logSortOrder" style="font-size: 0.85rem; font-weight: 600; color: #58bc82; margin: 0; white-space: nowrap;">Sort by Date:</label>
-                        <select id="logSortOrder" class="form-select form-select-sm" style="width: auto; height: 32px; border-radius: 20px; font-size: 0.85rem; padding: 0 10px; border: 1px solid #58bc82; cursor: pointer;" onchange="sortModalLogs()">
-                            <option value="desc">Newest First</option>
-                            <option value="asc">Oldest First</option>
-                        </select>
-                    </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="margin: 0;"></button>
+            <div class="modal-header">
+                <h3 id="detailsModalTitle" class="font-bold">Log Details</h3>
+                <div class="flex gap-4">
+                    <select id="logSortOrder" class="form-control" style="width: auto; height: 35px; padding: 0 1rem;" onchange="sortModalLogs()">
+                        <option value="desc">Newest First</option>
+                        <option value="asc">Oldest First</option>
+                    </select>
+                    <span class="close-btn" data-bs-dismiss="modal">&times;</span>
                 </div>
             </div>
-            <div class="modal-body" id="detailsModalBody" style="padding: 20px; overflow-x: auto;">
-                <!-- Content injected by JS -->
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <div class="modal-body" id="detailsModalBody" style="max-height: 70vh; overflow-y: auto;">
+                <!-- Injected via JS -->
             </div>
         </div>
     </div>
 </div>
 
-<!-- 3. REGISTER VEHICLE MODAL -->
 <div class="modal fade" id="vehicleModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title" style="font-size: 1.5rem; margin:0;">Register Vehicle</h2>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h3 class="font-bold"><i class="fas fa-car-side text-primary"></i> Register Vehicle</h3>
+                <span class="close-btn" data-bs-dismiss="modal">&times;</span>
             </div>
             <div class="modal-body">
                 <form action="{{ route('admin.vehicles.store') }}" method="POST">
                     @csrf
-                    
-                    <div class="mb-3">
-                        <label for="owner_id" class="form-label" style="font-weight: bold;">Vehicle Owner:</label>
-                        <select name="owner_id" id="owner_id" class="form-control" required>
+                    <div class="form-group">
+                        <label class="form-label">Vehicle Owner</label>
+                        <select name="owner_id" class="form-control" required>
                             <option value="">-- Select Owner --</option>
                             @foreach($owners as $owner)
-                                <option value="{{ $owner->owner_id }}">
-                                    {{ $owner->f_name }} {{ $owner->l_name }}
-                                </option>
+                                <option value="{{ $owner->owner_id }}">{{ $owner->f_name }} {{ $owner->l_name }}</option>
                             @endforeach
                         </select>
                     </div>
-
-                    <!-- Added Vehicle Type Select -->
-                    <div class="mb-3">
-                        <label for="vehicle_type" class="form-label" style="font-weight: bold;">Vehicle Type:</label>
-                        <select name="vehicle_type" id="vehicle_type" class="form-control" required>
+                    <div class="form-group">
+                        <label class="form-label">Vehicle Type</label>
+                        <select name="vehicle_type" class="form-control" required>
                             <option value="">Select Type</option>
                             <option value="Car">Car</option>
                             <option value="Motorcycle">Motorcycle</option>
@@ -334,15 +273,13 @@
                             <option value="Van">Van</option>
                         </select>
                     </div>
-
-                    <div class="mb-3">
-                        <label for="plate_number" class="form-label" style="font-weight: bold;">Plate Number:</label>
-                        <input type="text" name="plate_number" id="plate_number" class="form-control" required readonly style="background-color: #e9ecef;">
+                    <div class="form-group">
+                        <label class="form-label">Plate Number</label>
+                        <input type="text" name="plate_number" id="plate_number" class="form-control" required readonly>
                     </div>
-
-                    <div class="d-flex justify-content-end gap-2 mt-4">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="submit" style="border:none;">Register Vehicle</button>
+                    <div class="flex-center gap-4 mt-6" style="justify-content: flex-end;">
+                        <button type="button" class="btn btn-outline" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Register Vehicle</button>
                     </div>
                 </form>
             </div>
@@ -350,19 +287,20 @@
     </div>
 </div>
 
-<!-- 4. DELETE MODAL -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="text-align: center;">
-            <div class="modal-body p-4">
-                <div style="margin-bottom: 15px;">
-                    <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #e74c3c;"></i>
-                </div>
-                <h2 style="margin-bottom: 10px; color: #333;">Are you sure?</h2>
-                <p style="color: #666; margin-bottom: 25px;">Do you really want to delete this log? This process cannot be undone.</p>
-                <div style="display: flex; gap: 15px; justify-content: center;">
-                    <button type="button" data-bs-dismiss="modal" class="btn btn-secondary">Cancel</button>
-                    <button onclick="confirmDeletionSubmit()" class="btn btn-danger">Delete</button>
+        <div class="modal-content text-center">
+            <div class="modal-body" style="padding: 2.5rem 1.5rem;">
+                <div class="mb-4">
+                    <div class="flex-center" style="width: 4rem; height: 4rem; background-color: #fef2f2; border-radius: 50%; margin: 0 auto;">
+                        <i class="fas fa-trash-alt" style="font-size: 2rem; color: var(--red-500);"></i>
+                    </div>
+                </div>               
+                <h2 class="mb-2 font-800 text-dark">Delete Log?</h2>
+                <p class="text-slate-500 mb-6">Are you sure you want to delete this specific log record? This action cannot be undone.</p>             
+                <div class="flex-center gap-4">
+                    <button type="button" class="btn btn-outline" data-bs-dismiss="modal" style="flex: 1;">Cancel</button>
+                    <button onclick="confirmDeletionSubmit()" class="btn btn-red" style="flex: 1;">Delete Log</button>
                 </div>
             </div>
         </div>
@@ -370,73 +308,11 @@
 </div>
 
 <script>
-    // --- 1. DETAILS MODAL LOGIC ---
-    function openLogDetails(uniqueId, plateNumber) {
-        var content = document.getElementById('content-' + uniqueId).innerHTML;
-        document.getElementById('detailsModalBody').innerHTML = content;
-        document.getElementById('detailsModalTitle').innerText = 'Detailed Logs for ' + plateNumber;
-        
-        // Reset sort dropdown to default (Newest First)
-        const sortSelect = document.getElementById('logSortOrder');
-        if (sortSelect) sortSelect.value = 'desc';
-        
-        var myModal = new bootstrap.Modal(document.getElementById('detailsModal'));
-        myModal.show();
-    }
-
-    function sortModalLogs() {
-        const order = document.getElementById('logSortOrder').value;
-        const modalBody = document.getElementById('detailsModalBody');
-        const tableBody = modalBody.querySelector('tbody');
-        if (!tableBody) return;
-
-        const rows = Array.from(tableBody.querySelectorAll('tr'));
-        
-        rows.sort((a, b) => {
-            const timeA = parseInt(a.getAttribute('data-timestamp')) || 0;
-            const timeB = parseInt(b.getAttribute('data-timestamp')) || 0;
-            return order === 'asc' ? timeA - timeB : timeB - timeA;
-        });
-
-        // Clear and re-append
-        tableBody.innerHTML = '';
-        rows.forEach((row, index) => {
-            // Update the row index (# column)
-            const indexCell = row.querySelector('.row-index');
-            if (indexCell) indexCell.textContent = index + 1;
-            tableBody.appendChild(row);
-        });
-    }
-
-    // --- 2. REGISTER MODAL LOGIC ---
-    function openRegisterModal(plateNumber) {
-        var plateInput = document.getElementById('plate_number');
-        if(plateInput) {
-            plateInput.value = plateNumber;
-        }
-        var myModal = new bootstrap.Modal(document.getElementById('vehicleModal'));
-        myModal.show();
-    }
-
-    // --- 3. DELETE MODAL LOGIC ---
-    let currentDeleteFormId = null;
-    function openDeleteModal(formId) {
-        currentDeleteFormId = formId; 
-        var myModal = new bootstrap.Modal(document.getElementById('deleteModal'));
-        myModal.show();
-    }
-    function confirmDeletionSubmit() {
-        if(currentDeleteFormId) {
-            document.getElementById(currentDeleteFormId).submit();
-        }
-    }
-
-    // --- AUTO REFRESH LOGIC ---
+    // Periodic refresh
     setInterval(function(){
-        // Only reload if no modal is open (to prevent interrupting user interaction)
         if (!document.querySelector('.modal.show')) {
             window.location.reload();
         }
-    }, 5000); // 5000 milliseconds = 5 seconds
+    }, 10000); 
 </script>
 @endsection

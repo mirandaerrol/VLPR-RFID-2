@@ -1,54 +1,61 @@
 @if ($errors->any())
-    <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 15px;">
-        <ul style="margin: 0; padding-left: 20px;">
+    <div class="card mb-4" style="background-color: #fef2f2; border-color: #fecaca; padding: 1rem;">
+        <ul class="m-0" style="color: #991b1b; padding-left: 1.25rem;">
             @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
+                <li class="fs-sm">{{ $error }}</li>
             @endforeach
         </ul>
     </div>
 @endif
 
-<form action="{{ route('admin.vehicle_owners.store') }}" method="POST" class="detect-form" style="display: flex; flex-direction: column; gap: 15px;">
+<form action="{{ route('admin.vehicle_owners.store') }}" method="POST">
     @csrf
-    <div class="input-span">
-        <label for="f_name" class="label">First Name:</label>
-        <input type="text" name="f_name" id="f_name" class="input" required value="{{ old('f_name') }}">
+    
+    <div class="stats-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 0;">
+        <div class="form-group">
+            <label for="f_name" class="form-label">First Name</label>
+            <input type="text" name="f_name" id="f_name" class="form-control" required value="{{ old('f_name') }}" placeholder="Enter first name...">
+        </div>
+
+        <div class="form-group">
+            <label for="l_name" class="form-label">Last Name</label>
+            <input type="text" name="l_name" id="l_name" class="form-control" required value="{{ old('l_name') }}" placeholder="Enter last name...">
+        </div>
     </div>
 
-    <div class="input-span">
-        <label for="l_name" class="label">Last Name:</label>
-        <input type="text" name="l_name" id="l_name" class="input" required value="{{ old('l_name') }}">
+    <div class="form-group">
+        <label for="address" class="form-label">Complete Address</label>
+        <input type="text" name="address" id="address" class="form-control" required value="{{ old('address') }}" placeholder="Street, Barangay, City...">
     </div>
 
-    <div class="input-span">
-        <label for="address" class="label">Address:</label>
-        <input type="text" name="address" id="address" class="input" required value="{{ old('address') }}">
+    <div class="stats-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 0;">
+        <div class="form-group">
+            <label for="contact_number" class="form-label">Contact Number</label>
+            <input type="text" name="contact_number" id="contact_number" class="form-control" required value="{{ old('contact_number') }}" placeholder="09xxxxxxxxx">
+        </div>
+
+        <div class="form-group">
+            <label for="type_of_owner" class="form-label">Owner Type</label>
+            <select name="type_of_owner" id="type_of_owner" class="form-control" required>
+                <option value="student" {{ old('type_of_owner') == 'student' ? 'selected' : '' }}>Student</option>
+                <option value="employee" {{ old('type_of_owner') == 'employee' ? 'selected' : '' }}>Employee</option>
+            </select>
+        </div>
     </div>
 
-    <div class="input-span">
-        <label for="contact_number" class="label">Contact Number:</label>
-        <input type="text" name="contact_number" id="contact_number" class="input" required value="{{ old('contact_number') }}">
+    <div class="form-group">
+        <label for="valid_id" class="form-label">Valid ID Number</label>
+        <input type="text" name="valid_id" id="valid_id" class="form-control" required value="{{ old('valid_id') }}" placeholder="Enter ID number...">
     </div>
 
-    <div class="input-span">
-        <label for="type_of_owner" class="label">Type of Owner:</label>
-        <select name="type_of_owner" id="type_of_owner" class="input" required>
-            <option value="student" {{ old('type_of_owner') == 'student' ? 'selected' : '' }}>Student</option>
-            <option value="employee" {{ old('type_of_owner') == 'employee' ? 'selected' : '' }}>Employee</option>
-        </select>
+    <div class="form-group">
+        <label for="rfid_code" class="form-label" style="color: var(--green-500);"><i class="fas fa-wifi"></i> RFID Tag (Optional)</label>
+        <input type="text" name="rfid_code" id="rfid_code" class="form-control" placeholder="Scan or type RFID code..." value="{{ old('rfid_code') }}" style="border-color: var(--green-500); background-color: #f0fdf4;">
+        <p class="fs-sm text-slate-400 mt-2">Recommended for automatic gate access.</p>
     </div>
 
-    <div class="input-span">
-        <label for="valid_id" class="label">Valid ID:</label>
-        <input type="text" name="valid_id" id="valid_id" class="input" required value="{{ old('valid_id') }}">
-    </div>
-    <div class="input-span">
-        <label for="rfid_code" class="label" style="color: #27ae60;">RFID Tag:</label>
-        <input type="text" name="rfid_code" id="rfid_code" class="input" placeholder="Scan or type RFID code..." value="{{ old('rfid_code') }}">
-    </div>
-
-    <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 10px;">
-        <button type="button" data-bs-dismiss="modal" style="padding: 10px 20px; background: #95a5a6; color: white; border: none; border-radius: 5px; cursor: pointer;">Cancel</button>
-        <button type="submit" class="submit" style="width: auto;">Create</button>
+    <div class="flex-center gap-4 mt-8" style="justify-content: flex-end;">
+        <button type="button" class="btn btn-outline" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-primary">Register Owner</button>
     </div>
 </form>
