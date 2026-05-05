@@ -33,6 +33,17 @@ class AuthController extends Controller
         $user = User::where('name', $request->name)->first();
         
         if ($user && Hash::check($request->password, $user->password)) {
+            $user->last_login_at = now();
+            $user->save();
+
+            if ($user->role === 'guard') {
+                \App\Models\GuardLoginLog::create([
+                    'user_id' => $user->id,
+                    'login_at' => now(),
+                    'ip_address' => $request->ip(),
+                ]);
+            }
+
             Auth::login($user);
             
             // Regenerate session ID to prevent session fixation attacks

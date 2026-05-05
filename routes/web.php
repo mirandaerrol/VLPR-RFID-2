@@ -64,7 +64,7 @@ Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(functi
 
 
 //GUARD ROUTES
-Route::middleware(['role:guard'])->group(function () {
+Route::middleware(['role:guard', 'guard.duty'])->group(function () {
     //Main Dashboard
     Route::get('/guard/dashboard', [GuardController::class, 'dashboard'])->name('guard_dashboard');  
     //Submit Report
@@ -78,7 +78,18 @@ Route::middleware(['role:guard'])->group(function () {
 // MASTER ROUTES
 Route::middleware(['role:master'])->prefix('master')->name('master.')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\Master\MasterController::class, 'dashboard'])->name('dashboard');
+    Route::get('/database-overview', [\App\Http\Controllers\Master\MasterController::class, 'databaseOverview'])->name('database_overview');
+    Route::get('/live-monitoring', [\App\Http\Controllers\Master\MasterController::class, 'liveMonitoring'])->name('live_monitoring');
+    Route::get('/schedule-management', [\App\Http\Controllers\Master\MasterController::class, 'scheduleManagement'])->name('schedule_management');
+    Route::get('/detection-activity', [\App\Http\Controllers\Master\MasterController::class, 'detectionActivity'])->name('detection_activity');
+    
     Route::get('/chart-details', [\App\Http\Controllers\Master\MasterController::class, 'getChartDetails'])->name('chart_details');
+    Route::post('/assign-duty', [\App\Http\Controllers\Master\MasterController::class, 'assignDuty'])->name('assign_duty');
+    Route::delete('/delete-duty/{id}', [\App\Http\Controllers\Master\MasterController::class, 'deleteDuty'])->name('delete_duty');
+    Route::post('/force-logout/{userId}', [\App\Http\Controllers\Master\MasterController::class, 'forceLogout'])->name('force_logout');
+    Route::post('/reassign-duty', [\App\Http\Controllers\Master\MasterController::class, 'reassignDuty'])->name('reassign_duty');
+    Route::post('/duplicate-schedule', [\App\Http\Controllers\Master\MasterController::class, 'duplicateSchedule'])->name('duplicate_schedule');
+    Route::get('/historical-audit', [\App\Http\Controllers\Master\MasterController::class, 'getHistoricalDuty'])->name('historical_audit');
 });
 
 

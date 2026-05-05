@@ -49,4 +49,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Report::class);
     }
+
+    public function dutyAssignments()
+    {
+        return $this->hasMany(DutyAssignment::class);
+    }
 }
