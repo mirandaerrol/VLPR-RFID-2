@@ -108,5 +108,41 @@
                 </tbody>
             </table>
         </div>
+
+        <h3 style="margin-bottom: 1rem; color: #334155; margin-top: 2rem;"><i class="fas fa-car text-teal"></i> Vehicle Logs (That day)</h3>
+        <div class="modal-table-wrapper">
+            <table class="activity-table">
+                <thead>
+                    <tr>
+                        <th>Plate Number</th>
+                        <th>Owner</th>
+                        <th>Method</th>
+                        <th>Time In</th>
+                        <th>Time Out</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($vehicleLogs as $log)
+                    <tr>
+                        <td style="font-weight: 700;">{{ $log->vehicle->plate_number ?? ($log->detected_plate_number ?? 'Unknown') }}</td>
+                        <td>{{ $log->owner ? $log->owner->f_name . ' ' . $log->owner->l_name : 'Unregistered' }}</td>
+                        <td><span class="badge-auth">{{ $log->detection_method }}</span></td>
+                        <td>{{ \Carbon\Carbon::parse($log->created_at)->format('h:i A') }}</td>
+                        <td>{{ $log->timeLog && $log->timeLog->time_out ? \Carbon\Carbon::parse($log->timeLog->time_out)->format('h:i A') : '---' }}</td>
+                        <td>
+                            @if($log->timeLog && $log->timeLog->time_out)
+                                <span class="badge-auth" style="background: #64748b;">Exited</span>
+                            @else
+                                <span class="badge-auth" style="background: #10b981;">In Campus</span>
+                            @endif
+                        </td>
+                    </tr>
+                    @empty
+                    <tr><td colspan="6" style="text-align:center; padding:15px;">No vehicle logs found for this date.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 @endsection

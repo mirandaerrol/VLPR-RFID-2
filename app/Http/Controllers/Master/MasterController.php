@@ -219,7 +219,12 @@ class MasterController extends Controller
             ->orderBy('login_at', 'desc')
             ->get();
 
-        return view('master.historical_audit', compact('assignment', 'logins', 'dateTime'));
+        $vehicleLogs = Log::with(['vehicle', 'owner', 'timeLog'])
+            ->whereDate('created_at', $request->search_date)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('master.historical_audit', compact('assignment', 'logins', 'dateTime', 'vehicleLogs'));
     }
 
     public function assignDuty(Request $request)

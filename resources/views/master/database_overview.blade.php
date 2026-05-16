@@ -56,14 +56,6 @@
             </div>
         </a>
     </div>
-
-    <div class="chart-container" style="margin-top: 2rem;">
-        <h3 style="margin-bottom: 1rem; color: #334155;"><i class="fas fa-info-circle text-blue"></i> Database Overview Information</h3>
-        <p style="color: #64748b; line-height: 1.6;">
-            This section provides a high-level summary of the system's registered entities. 
-            Click on any of the cards above to view detailed lists of owners, vehicles, guards, and unregistered detections.
-        </p>
-    </div>
 @endsection
 
 @section('modals')
